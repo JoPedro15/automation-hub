@@ -1,40 +1,74 @@
-# 🧠 Random Stuff
+# 🧩 Random Stuff
 
-A collection of small, focused Python projects — each exploring a different API, automation, or learning experiment.  
-This repository serves as a playground for building and testing ideas with clean structure and reusable tooling.
+A collection of small, focused Python projects exploring **APIs**, **automation**, and **experiments** — all under one
+roof, sharing common tooling and conventions.
 
----
+## 📁 Structure
 
-## 📂 Structure
+| Folder     | Description                                                      |
+|------------|------------------------------------------------------------------|
+| `common/`  | Shared utilities (e.g., logging, helpers) reused across projects |
+| `spotify/` | Lightweight **Spotify Web API client** (Client Credentials flow) |
 
-Each subfolder is an **independent, testable project** that can be run with its own Makefile and dependencies.
+Each subproject is self-contained with its own:
 
----
+- `Makefile`
+- `pyproject.toml`
+- `src/` and `tests/` directories
 
-## 🧰 Tooling
-
-All projects share a consistent developer setup powered by:
-
-- **Python ≥ 3.9**
-- **Black**, **isort**, and **Ruff** for formatting and linting
-- **Makefiles** for automation (`setup`, `lint`, `test`, `run`)
-- A common logging utility (`common/python/logging_utils.py`)
-
----
-
-## ⚙️ Developer Workflow
+## ⚙️ Quickstart
 
 ```bash
-# Install or update dependencies
+# 1️⃣ Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 2️⃣ Install dependencies
 make setup
 
-# Format and lint all code
+# 3️⃣ Format, lint, and test everything
 make fmt
 make lint
-
-# Run tests (if available)
 make test
+```
 
-# Run a project (inside its folder)
-cd spotify
-make run
+## 🧱 Project Conventions
+
+### Python version: ≥ 3.10
+
+### Layout per project:
+
+```bash
+<project>/
+├─ src/
+│  └─ <package>/
+├─ tests/
+├─ Makefile
+└─ pyproject.toml
+```
+
+### Logging
+
+Use common/python/logging_utils.py to keep output consistent across projects.
+
+## 🪄 Adding a New Project
+
+```
+mkdir my-new-project && cd my-new-project
+mkdir src tests
+cp ../spotify/Makefile .
+```
+
+Then update:
+
+the import paths
+
+the pyproject.toml (name, dependencies)
+
+and write your first test in tests/
+
+Made with ☕ by João
+
+<div style="text-align: center;">
+  <b>Made with ☕ by João</b><br>
+</div>
