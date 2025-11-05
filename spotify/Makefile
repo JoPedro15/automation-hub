@@ -13,7 +13,6 @@ help:
 	@echo "  make fmt       - format (isort + black)"
 	@echo "  make lint      - lint with ruff"
 	@echo "  make test      - run pytest (verbose)"
-	@echo "  make coverage  - run tests with coverage"
 	@echo "  make run       - run main.py"
 	@echo "  make clean     - remove caches"
 
@@ -36,10 +35,6 @@ fmt:
 
 test:
 	$(PY) -m pytest -v
-
-coverage:
-	$(PY) -m pip install -q coverage pytest-cov
-	$(PY) -m pytest -v --cov=src --cov-report=term-missing
 
 run:
 	$(PY) src/main.py

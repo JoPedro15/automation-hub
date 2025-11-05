@@ -43,12 +43,6 @@ This project includes automated tests powered by pytest.
 make test
 ```
 
-### 📊 Run with coverage
-
-```
-make coverage
-```
-
 ## 👩‍💻 Developer Commands
 
 | Command         | Description                                          |
@@ -58,7 +52,6 @@ make coverage
 | `make lint`     | Run `ruff` linting                                   |
 | `make lint-fix` | Auto-fix simple lint issues                          |
 | `make test`     | Execute all tests with `pytest`                      |
-| `make coverage` | Run tests with coverage report                       |
 | `make run`      | Launch CLI via `main.py`                             |
 | `make clean`    | Remove caches (`__pycache__`, `.pytest_cache`, etc.) |
 
