@@ -2,12 +2,16 @@
 CLI for Spotify client
 """
 
+# stdlib
 import os
 from typing import Optional
 
 import requests
-from common.python.logging_utils import setup
+# third-party
 from dotenv import load_dotenv
+
+# first-party
+from common.python.logging_utils import setup
 from spotify.src.utils import format_spotify_album
 
 
@@ -33,12 +37,12 @@ class SpotifyClient:
     """
 
     def __init__(
-        self,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
-        auth_url: Optional[str] = None,
-        api_base_url: Optional[str] = None,
-        logger_name: str = "spotify.client",
+            self,
+            client_id: Optional[str] = None,
+            client_secret: Optional[str] = None,
+            auth_url: Optional[str] = None,
+            api_base_url: Optional[str] = None,
+            logger_name: str = "spotify.client",
     ) -> None:
         """
         Initialize the Spotify client with credentials and endpoints.
