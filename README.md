@@ -67,8 +67,6 @@ the pyproject.toml (name, dependencies)
 
 and write your first test in tests/
 
-Made with ☕ by João
-
 <div style="text-align: center;">
   <b>Made with ☕ by João</b><br>
 </div>
