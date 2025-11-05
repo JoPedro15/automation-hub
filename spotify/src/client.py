@@ -6,8 +6,8 @@ CLI for Spotify client
 import os
 from typing import Optional
 
-import requests
 # third-party
+import requests
 from dotenv import load_dotenv
 
 # first-party
