@@ -37,8 +37,8 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}/spotify/src:${{ github.workspace }}
       SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
       SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
-      SPOTIFY_AUTH_URL: ${{ secrets.SPOTIFY_AUTH_URL }}
-      SPOTIFY_ENDPOINT: ${{ secrets.SPOTIFY_ENDPOINT }}
+      SPOTIFY_AUTH_URL: ${{ vars.SPOTIFY_AUTH_URL }}
+      SPOTIFY_ENDPOINT: ${{ vars.SPOTIFY_ENDPOINT }}
       PYTEST_ADDOPTS: "-q --tb=short -p no:warnings -p no:logging"
 
     steps:
