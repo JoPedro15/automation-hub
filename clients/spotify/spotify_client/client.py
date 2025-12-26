@@ -8,9 +8,9 @@ from typing import Any, Dict, Optional
 
 # third-party
 import requests
-from clients.spotify.spotify_client.utils import format_spotify_album
 from dotenv import load_dotenv
 
+from clients.spotify.spotify_client.utils import format_spotify_album
 # first-party
 from common.python.logging_utils import setup
 
@@ -37,12 +37,12 @@ class SpotifyClient:
     """
 
     def __init__(
-        self,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
-        auth_url: Optional[str] = None,
-        api_base_url: Optional[str] = None,
-        logger_name: str = "spotify.client",
+            self,
+            client_id: Optional[str] = None,
+            client_secret: Optional[str] = None,
+            auth_url: Optional[str] = None,
+            api_base_url: Optional[str] = None,
+            logger_name: str = "spotify.client",
     ) -> None:
         """
         Initialize the Spotify client with credentials and endpoints.
@@ -87,6 +87,7 @@ class SpotifyClient:
                 "grant_type": "client_credentials",
             },
             auth=(self.client_id, self.client_secret),
+            timeout=10,
         )
 
         if auth_response.status_code != 200:
@@ -133,6 +134,7 @@ class SpotifyClient:
                 "type": "track",
                 "limit": 1,
             },
+            timeout=10,
         )
 
         if search_item.status_code != 200:
