@@ -1,9 +1,12 @@
 from pathlib import Path
 from typing import Optional
 
+import pytest
+
 from clients.gdrive import GDriveClient
 
 
+@pytest.mark.integration
 def test_upload() -> None:
     """
     Test the upload functionality using the project's output folder structure.
