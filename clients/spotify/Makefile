@@ -7,7 +7,7 @@ PY   := $(VENV)/bin/python
 
 export PYTHONPATH := $(ROOT_DIR):$(PYTHONPATH)
 
-.PHONY: help setup ci test lint fmt run clean
+.PHONY: help setup test lint fmt run clean
 
 help:
 	@echo "Spotify Client Commands:"
@@ -23,8 +23,6 @@ setup:
 	$(PY) -m pip install ruff black isort pytest
 	@if [ -f requirements.txt ]; then $(PY) -m pip install -r requirements.txt; fi
 
-ci: lint test
-
 lint:
 	$(PY) -m ruff check .
 
@@ -34,9 +32,6 @@ fmt:
 
 test:
 	$(PY) -m pytest -v
-
-run:
-	$(PY) spotify_client/main.py
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache __pycache__ */__pycache__ *.egg-info

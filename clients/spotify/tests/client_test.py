@@ -1,5 +1,4 @@
 import pytest
-
 from clients.spotify.spotify_client.client import SpotifyClient
 
 

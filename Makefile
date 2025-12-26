@@ -3,7 +3,10 @@ PY          := $(VENV)/bin/python
 PIP         := $(PY) -m pip
 REQ_DEV     := requirements.txt
 
-.PHONY: setup update-deps security test-all test-spotify test-gdrive lint fmt clean
+SPOTIFY_DIR = clients/spotify
+GDRIVE_DIR = clients/gdrive
+
+.PHONY: setup update-deps security test-all test-spotify test-gdrive lint-all lint-spotify lint-gdrive fmt-all fmt-spotify fmt-gdrive
 
 
 setup:
@@ -37,11 +40,27 @@ test-spotify:
 test-gdrive:
 	$(MAKE) -C clients/gdrive test
 
-lint:
-	$(MAKE) -C clients/spotify lint
+# --- LINTING ---
 
-fmt:
-	$(MAKE) -C clients/spotify fmt
+# Run lint for all clients
+lint-all: lint-spotify lint-gdrive
+
+lint-spotify:
+	$(MAKE) -C $(SPOTIFY_DIR) lint
+
+lint-gdrive:
+	$(MAKE) -C $(GDRIVE_DIR) lint
+
+# --- FORMATTING ---
+
+# Run format for all clients
+fmt-all: fmt-spotify fmt-gdrive
+
+fmt-spotify:
+	$(MAKE) -C $(SPOTIFY_DIR) fmt
+
+fmt-gdrive:
+	$(MAKE) -C $(GDRIVE_DIR) fmt
 
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

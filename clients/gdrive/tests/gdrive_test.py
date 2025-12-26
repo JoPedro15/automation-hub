@@ -2,7 +2,6 @@ from pathlib import Path
 from typing import Optional
 
 import pytest
-
 from clients.gdrive import GDriveClient
 
 

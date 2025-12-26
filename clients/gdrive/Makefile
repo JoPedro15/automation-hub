@@ -17,16 +17,16 @@ setup:
 	# Install development tools
 	$(PY) -m pip install pytest ruff black isort
 
-test:
-	@echo ">>> Running GDrive tests..."
-	$(PY) -m pytest tests/gdrive_test.py -vv
-
 lint:
 	$(PY) -m ruff check .
 
 fmt:
 	$(PY) -m isort .
 	$(PY) -m black .
+
+test:
+	@echo ">>> Running GDrive tests..."
+	$(PY) -m pytest tests/gdrive_test.py -vv
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache __pycache__ *.egg-info
