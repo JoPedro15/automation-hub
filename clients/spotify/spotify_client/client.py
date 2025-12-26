@@ -8,12 +8,11 @@ from typing import Any, Dict, Optional
 
 # third-party
 import requests
+from dotenv import load_dotenv
 
 # first-party
 from common.python.logging_utils import setup
-from dotenv import load_dotenv
-
-from clients.spotify.spotify_client.utils import format_spotify_album
+from .utils import format_spotify_album
 
 
 class SpotifyClient:
@@ -38,12 +37,12 @@ class SpotifyClient:
     """
 
     def __init__(
-        self,
-        client_id: Optional[str] = None,
-        client_secret: Optional[str] = None,
-        auth_url: Optional[str] = None,
-        api_base_url: Optional[str] = None,
-        logger_name: str = "spotify.client",
+            self,
+            client_id: Optional[str] = None,
+            client_secret: Optional[str] = None,
+            auth_url: Optional[str] = None,
+            api_base_url: Optional[str] = None,
+            logger_name: str = "spotify.client",
     ) -> None:
         """
         Initialize the Spotify client with credentials and endpoints.
@@ -59,7 +58,8 @@ class SpotifyClient:
         self.client_id = client_id or os.getenv("SPOTIFY_CLIENT_ID")
         self.client_secret = client_secret or os.getenv("SPOTIFY_CLIENT_SECRET")
         self.auth_url = auth_url or os.getenv("SPOTIFY_AUTH_URL")
-        self.api_base_url = api_base_url or os.getenv("SPOTIFY_ENDPOINT")
+        self.api_base_url = api_base_url or os.getenv("SPOTIFY_API_BASE_URL")
+        self.timeout: int = 10  # Seconds
 
         self.logger = setup(name=logger_name)
 
@@ -88,6 +88,7 @@ class SpotifyClient:
                 "grant_type": "client_credentials",
             },
             auth=(self.client_id, self.client_secret),
+            timeout=10,
         )
 
         if auth_response.status_code != 200:
@@ -134,6 +135,7 @@ class SpotifyClient:
                 "type": "track",
                 "limit": 1,
             },
+            timeout=10,
         )
 
         if search_item.status_code != 200:
@@ -147,7 +149,9 @@ class SpotifyClient:
 
         # Get Track Info
         track_request = requests.get(
-            f"{self.api_base_url}/tracks/{target_track_id}", headers=headers
+            f"{self.api_base_url}/tracks/{target_track_id}",
+            headers=headers,
+            timeout=self.timeout,
         )
 
         if track_request.status_code != 200:
@@ -178,7 +182,9 @@ class SpotifyClient:
         """
         headers = self._auth_headers()
 
-        search_album = requests.get(f"{self.api_base_url}/albums/{album_id}", headers=headers)
+        search_album = requests.get(
+            f"{self.api_base_url}/albums/{album_id}", headers=headers, timeout=self.timeout
+        )
 
         if search_album.status_code != 200:
             raise SystemExit(f"❌ API call failed: {search_album.text}")

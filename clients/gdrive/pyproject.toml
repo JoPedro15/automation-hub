@@ -22,3 +22,9 @@ filterwarnings = [
     "ignore::DeprecationWarning:httplib2.*:",
     "ignore::DeprecationWarning:googleapiclient.*:",
 ]
+markers = [
+    "integration: marks tests as integration (skipped in CI)"
+]
+testpaths = ["tests"]
+pythonpath = ["../../", "."]
+addopts = "-vv --tb=short"
