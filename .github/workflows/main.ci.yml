@@ -83,6 +83,10 @@ jobs:
           cache: "pip"
 
       - name: Install and Test
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_AUTH_URL: ${{ secrets.SPOTIFY_AUTH_URL }}
         run: |
           pip install -e .
           pip install pytest ruff black
@@ -108,6 +112,8 @@ jobs:
           cache: "pip"
 
       - name: Lint and Unit Tests
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
         run: |
           pip install -e .
           pip install pytest ruff black
