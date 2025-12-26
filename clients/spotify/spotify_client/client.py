@@ -8,12 +8,11 @@ from typing import Any, Dict, Optional
 
 # third-party
 import requests
+from clients.spotify.spotify_client.utils import format_spotify_album
+from dotenv import load_dotenv
 
 # first-party
 from common.python.logging_utils import setup
-from dotenv import load_dotenv
-
-from clients.spotify.spotify_client.utils import format_spotify_album
 
 
 class SpotifyClient:
