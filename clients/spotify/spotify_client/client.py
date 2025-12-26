@@ -58,7 +58,7 @@ class SpotifyClient:
         self.client_id = client_id or os.getenv("SPOTIFY_CLIENT_ID")
         self.client_secret = client_secret or os.getenv("SPOTIFY_CLIENT_SECRET")
         self.auth_url = auth_url or os.getenv("SPOTIFY_AUTH_URL")
-        self.api_base_url = api_base_url or os.getenv("SPOTIFY_ENDPOINT")
+        self.api_base_url = api_base_url or os.getenv("SPOTIFY_API_BASE_URL")
         self.timeout: int = 10  # Seconds
 
         self.logger = setup(name=logger_name)
