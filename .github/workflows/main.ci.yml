@@ -93,7 +93,7 @@ jobs:
           pip install pytest ruff black
           python -m pytest
 
-  # 🔵 GDRIVE JOB: Execution conditioned by changes
+  # GDRIVE JOB: Execution conditioned by changes
   gdrive-client:
     name: GDrive Quality
     needs: [ security-scan, changes ]
@@ -122,4 +122,4 @@ jobs:
           pip install -e .
           pip install pytest ruff black
           # Skip integration tests that require local OAuth browser flow
-          python -m pytest -m "not integration"
+          python -m pytest -m "not integration" || [ $? -eq 5 ]
