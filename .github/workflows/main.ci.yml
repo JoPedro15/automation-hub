@@ -87,6 +87,7 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_AUTH_URL: ${{ secrets.SPOTIFY_AUTH_URL }}
+          SPOTIFY_API_BASE_URL: ${{ secrets.SPOTIFY_API_BASE_URL }}
         run: |
           pip install -e .
           pip install pytest ruff black
@@ -110,7 +111,10 @@ jobs:
         with:
           python-version: "3.12"
           cache: "pip"
-
+      - name: Create credentials file
+        run: |
+          mkdir -p data
+          echo '${{ secrets.GDRIVE_CREDENTIALS_JSON }}' > data/credentials.json
       - name: Lint and Unit Tests
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
