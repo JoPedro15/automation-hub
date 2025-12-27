@@ -3,11 +3,12 @@
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 VENV     := $(ROOT_DIR)/.venv
 PY       := $(VENV)/bin/python
-
+PYTHON = python3
+SCRIPTS_DIR = scripts
 # Export PYTHONPATH so the interpreter finds the root packages
 export PYTHONPATH := $(ROOT_DIR):$(PYTHONPATH)
 
-.PHONY: setup test lint fmt clean
+.PHONY: setup test lint fmt clean clean-output
 
 setup:
 	@echo ">>> Installing GDrive Client and its dependencies..."
@@ -30,3 +31,8 @@ test:
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache __pycache__ *.egg-info
+
+clean-output:
+	@echo ">>> Cleaning Google Drive output folder..."
+	@$(PY) $(SCRIPTS_DIR)/clean_gdrive_output.py
+	@echo ">>> GDrive cleanup task finished."

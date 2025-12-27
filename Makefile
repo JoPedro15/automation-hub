@@ -16,6 +16,9 @@ setup:
 	@$(MAKE) update-deps
 	@echo ">>> System ready!"
 
+activate:
+	source ../../.venv/bin/activate
+
 update-deps:
 	@echo ">>> Installing/Updating all development requirements..."
 	# -U upgrades all specified packages to the newest available version

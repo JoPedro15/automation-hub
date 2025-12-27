@@ -1,96 +1,102 @@
 import os
-from typing import Any, List, Optional
+from typing import Any
+from typing import List, Optional, Dict
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+from googleapiclient.discovery import build, Resource
+
+from clients.gdrive.gdrive_client.auth import get_google_service_credentials
 
 
 class GDriveClient:
     """
-    Service client for Google Drive API v3 operations.
-    Handles automated OAuth2 authentication and file management.
+    Client to interact with Google Drive API for automation tasks.
     """
 
-    # Full drive access scope
-    SCOPES: List[str] = ["https://www.googleapis.com/auth/drive"]
-
-    def __init__(
-        self,
-        credentials_path: str = "data/credentials.json",
-        token_path: str = "data/token.json",
-    ) -> None:
+    def __init__(self, credentials_path: str, token_path: str) -> None:
         """
-        Initialize the client with paths to security credentials.
+        Initializes the GDriveClient with necessary paths and authenticates.
+
+        :param credentials_path: Path to the credentials.json file.
+        :param token_path: Path to the token.json file.
         """
         self.credentials_path: str = credentials_path
         self.token_path: str = token_path
-        # Use Any here because the Google Resource object is dynamically built
-        self.service: Any = self._authenticate()
+        self.scopes: List[str] = ["https://www.googleapis.com/auth/drive"]
 
-    def _authenticate(self) -> Any:
+        self.output_folder_id: Optional[str] = os.getenv("OUTPUT_FOLDER_ID")
+
+        self.service: Resource = self._init_service()
+
+    def _init_service(self) -> Resource:
         """
-        Authenticates the user using OAuth2 flow.
+        Internal method to build the Google Drive service resource.
 
-        Returns:
-            Any: The authorized Google Drive service object (Resource).
+        :return: A Resource object for the Google Drive API.
         """
-        creds: Optional[Credentials] = None
-
-        if os.path.exists(self.token_path):
-            creds = Credentials.from_authorized_user_file(self.token_path, self.SCOPES)
-
-        if not creds or not creds.valid:
-            if creds and creds.expired and creds.refresh_token:
-                creds.refresh(Request())
-            else:
-                flow: InstalledAppFlow = InstalledAppFlow.from_client_secrets_file(
-                    self.credentials_path, self.SCOPES
-                )
-                creds = flow.run_local_server(port=0)
-
-            with open(self.token_path, "w") as token:
-                token.write(creds.to_json())
-
-        # Returning as Any bypasses the IDE's static analysis for dynamic methods
-        return build("drive", "v3", credentials=creds)
-
-    def list_files(self, limit: int = 10) -> List[dict[str, str]]:
-        """
-        Retrieve a list of files from the drive.
-        """
-        # The IDE will no longer flag .files() as unresolved
-        results = (
-            self.service.files()
-            .list(pageSize=limit, fields="nextPageToken, files(id, name)")
-            .execute()
+        creds = get_google_service_credentials(
+            self.credentials_path, self.token_path, self.scopes
         )
-        return results.get("files", [])
-
-    def download_file(self, file_id: str, local_path: str) -> None:
-        """
-        Download a file from GDrive to a local destination.
-        """
-        request = self.service.files().get_media(fileId=file_id)
-        with open(local_path, "wb") as f:
-            f.write(request.execute())
+        return build("drive", "v3", credentials=creds)
 
     def upload_file(self, file_path: str, folder_id: Optional[str] = None) -> str:
         """
-        Uploads a local file to Google Drive.
+        Uploads a file to a specific Google Drive folder.
+
+        :param file_path: Local path of the file to upload.
+        :param folder_id: ID of the folder where the file will be stored.
+        :return: The ID of the uploaded file.
         """
-        file_metadata: dict[str, Any] = {"name": os.path.basename(file_path)}
-        if folder_id:
-            file_metadata["parents"] = [folder_id]
+        from googleapiclient.http import MediaFileUpload
 
-        media = MediaFileUpload(file_path, resumable=True)
+        file_name: str = os.path.basename(file_path)
+        target_folder: str = folder_id or self.output_folder_id or ""
 
-        file = (
+        file_metadata: Dict[str, Any] = {
+            "name": file_name,
+            "parents": [target_folder] if target_folder else [],
+        }
+
+        media: MediaFileUpload = MediaFileUpload(file_path, resumable=True)
+
+        file: Dict[str, Any] = (
             self.service.files()
             .create(body=file_metadata, media_body=media, fields="id")
             .execute()
         )
 
-        return file.get("id")
+        print(f"✅ File {file_name} uploaded successfully with ID: {file.get('id')}")
+        return str(file.get("id"))
+
+    def clean_folder(
+            self, folder_id: str, file_prefix: Optional[str] = None
+    ) -> List[str]:
+        """
+        Deletes files within a specific Google Drive folder based on a prefix.
+
+        :param folder_id: The ID of the folder to clean.
+        :param file_prefix: Optional prefix to filter files (e.g., 'test_').
+        :return: A list of deleted file IDs.
+        """
+        if not folder_id:
+            print("⚠️ No folder_id provided for cleanup.")
+            return []
+
+        # Query construction: files in folder, not in trash
+        query: str = f"'{folder_id}' in parents and trashed = false"
+        if file_prefix:
+            query += f" and name contains '{file_prefix}'"
+
+        results: Dict[str, Any] = (
+            self.service.files().list(q=query, fields="files(id, name)").execute()
+        )
+
+        files: List[Dict[str, Any]] = results.get("files", [])
+        deleted_ids: List[str] = []
+
+        for file in files:
+            file_id: str = file["id"]
+            self.service.files().delete(fileId=file_id).execute()
+            deleted_ids.append(file_id)
+            print(f"✅ Deleted: {file['name']} from folder {folder_id}")
+
+        return deleted_ids
