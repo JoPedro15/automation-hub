@@ -2,7 +2,7 @@
 
 [![Main CI](https://github.com/JoPedro15/automation-hub/actions/workflows/main.ci.yml/badge.svg)](https://github.com/JoPedro15/automation-hub/actions)
 ![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)
-![Security: Bandit](https://img.shields.io/badge/security-bandit-yellow)
+![Security: Bandit](https://img.shields.io/badge/security-bandit-green)
 ![Security: pip--audit](https://img.shields.io/badge/security-pip--audit-green)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
