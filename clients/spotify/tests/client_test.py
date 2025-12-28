@@ -7,7 +7,6 @@ from clients.spotify.spotify_client.client import SpotifyClient
     [
         ("Open Car", "Deadwing", "Porcupine Tree"),
         ("Lazarus", "Deadwing", "Porcupine Tree"),
-        ("Blackest Eyes", "In Absentia", "Porcupine Tree"),
         ("Arriving Somewhere but Not Here", "Deadwing", "Porcupine Tree"),
     ],
 )

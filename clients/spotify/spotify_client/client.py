@@ -8,10 +8,10 @@ from typing import Any, Dict, Optional
 
 # third-party
 import requests
-from dotenv import load_dotenv
 
 # first-party
 from common.python.logging_utils import setup
+from dotenv import load_dotenv
 
 from .utils import format_spotify_album
 

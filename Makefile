@@ -1,71 +1,82 @@
+# Variables
 VENV        := .venv
 PY          := $(VENV)/bin/python
 PIP         := $(PY) -m pip
 REQ_DEV     := requirements.txt
 
-SPOTIFY_DIR = clients/spotify
-GDRIVE_DIR = clients/gdrive
+# Client directories
+SPOTIFY_DIR := clients/spotify
+GDRIVE_DIR  := clients/gdrive
 
-.PHONY: setup update-deps security test-all test-spotify test-gdrive lint-all lint-spotify lint-gdrive fmt-all fmt-spotify fmt-gdrive
+.PHONY: setup update-deps security test-all test-spotify test-gdrive clean lint-all fmt-all
 
+# --- Main Orchestration ---
 
+# Full environment orchestration: Creates VENV, installs dependencies and audits security
 setup:
-	@echo ">>> Creating Virtual Environment..."
-	python3 -m venv $(VENV)
-	$(PIP) install --upgrade pip
+	@echo ">>> 🛠️ Starting Full Environment Setup..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo ">>> Creating Virtual Environment..."; \
+		python3 -m venv $(VENV); \
+	fi
+	@$(PIP) install --upgrade pip
 	@$(MAKE) update-deps
-	@echo ">>> System ready!"
+	@$(MAKE) security
+	@echo ">>> ✅ System ready and secured!"
 
-activate:
-	source ../../.venv/bin/activate
-
+# Installs or upgrades all development requirements from the root file
 update-deps:
-	@echo ">>> Installing/Updating all development requirements..."
-	# -U upgrades all specified packages to the newest available version
+	@echo ">>> 📦 Updating development requirements..."
 	$(PIP) install -U -r $(REQ_DEV)
 
+# Performs static code analysis and checks for vulnerable dependencies
 security:
-	@echo ">>> Running Security Analysis (Bandit)..."
-	$(PY) -m bandit -r clients/ -ll
+	@echo ">>> 🛡️ Running Security Analysis (Bandit)..."
+	# Bandit: scans for common security issues (filtered by Medium/High severity)
+	$(PY) -m bandit -r clients/ -ll --exclude .venv,*/.venv/*
 	@echo ">>> Running Dependency Audit (pip-audit)..."
-	$(PY) -m pip_audit clients/spotify/
-	$(PY) -m pip_audit clients/gdrive/
+	# pip-audit: scans the entire environment for known vulnerabilities
+	$(PY) -m pip_audit
 
+# --- Testing ---
+
+# Runs all test suites across the entire hub
 test-all:
-	@echo ">>> Running all automation tests..."
+	@echo ">>> 🧪 Running all automation tests..."
 	@$(MAKE) test-spotify
 	@$(MAKE) test-gdrive
-	@echo ">>> All tests completed!"
+	@echo ">>> ✨ All tests completed!"
 
+# Triggers Spotify-specific integration tests via its local Makefile
 test-spotify:
-	$(MAKE) -C clients/spotify test
+	$(MAKE) -C $(SPOTIFY_DIR) test
 
+# Triggers Google Drive-specific integration tests via its local Makefile
 test-gdrive:
-	$(MAKE) -C clients/gdrive test
+	$(MAKE) -C $(GDRIVE_DIR) test
 
-# --- LINTING ---
+# --- Linting & Formatting ---
 
-# Run lint for all clients
-lint-all: lint-spotify lint-gdrive
-
-lint-spotify:
+# Executes static code analysis (linting) for all clients
+lint-all:
+	@echo ">>> 🔍 Linting all clients..."
 	$(MAKE) -C $(SPOTIFY_DIR) lint
-
-lint-gdrive:
 	$(MAKE) -C $(GDRIVE_DIR) lint
 
-# --- FORMATTING ---
-
-# Run format for all clients
-fmt-all: fmt-spotify fmt-gdrive
-
-fmt-spotify:
+# Standardizes code style across all clients
+fmt-all:
+	@echo ">>> 🖋️ Formatting all clients..."
 	$(MAKE) -C $(SPOTIFY_DIR) fmt
-
-fmt-gdrive:
 	$(MAKE) -C $(GDRIVE_DIR) fmt
 
+# --- Cleanup ---
+
+# Recursively purges Python caches, build artifacts, and test leftovers
 clean:
+	@echo ">>> 🧹 Cleaning up project artifacts..."
 	find . -type d -name "__pycache__" -exec rm -rf {} +
+	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	$(MAKE) -C clients/spotify clean
+	$(MAKE) -C $(SPOTIFY_DIR) clean
+	$(MAKE) -C $(GDRIVE_DIR) clean
+	@echo ">>> Workspace is clean."

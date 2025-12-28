@@ -6,18 +6,40 @@ build-backend = "setuptools.build_meta"
 name = "gdrive-client"
 version = "0.1.0"
 description = "Google Drive client for Automation Hub"
+requires-python = ">=3.12"
 dependencies = [
     "google-api-python-client",
     "google-auth-httplib2",
     "google-auth-oauthlib",
+    "python-dotenv",
 ]
 
 [tool.setuptools]
-# Explicitly include only the package folder, ignoring 'data' and 'tests'
+# Explicitly include only the package folder
 packages = ["gdrive_client"]
 
+# ─────────────────────────────────────────────────────────────
+# Ruff configuration (Unified with Spotify)
+# ─────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+fix = true
+
+[tool.ruff.lint]
+# E/F: Pycodestyle/Pyflakes, I: Isort logic, B: Bugbear
+select = ["E", "F", "I", "B"]
+ignore = ["E501"] # Formatting handles line length
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ─────────────────────────────────────────────────────────────
+# Pytest configuration
+# ─────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
-# Filter specific deprecation warnings from third-party libraries
+# Filter specific deprecation warnings from Google libraries
 filterwarnings = [
     "ignore::DeprecationWarning:httplib2.*:",
     "ignore::DeprecationWarning:googleapiclient.*:",
@@ -26,5 +48,6 @@ markers = [
     "integration: marks tests as integration (skipped in CI)"
 ]
 testpaths = ["tests"]
-pythonpath = ["../../", "."]
+# Using "." is enough since we use editable installs in the workflow
+pythonpath = ["."]
 addopts = "-vv --tb=short"
