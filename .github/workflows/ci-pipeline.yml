@@ -69,9 +69,6 @@ jobs:
     needs: [ security-scan, changes ]
     if: ${{ needs.changes.outputs.spotify == 'true' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: clients/spotify
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -88,10 +85,11 @@ jobs:
           SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
           SPOTIFY_AUTH_URL: ${{ vars.SPOTIFY_AUTH_URL }}
           SPOTIFY_API_BASE_URL: ${{ vars.SPOTIFY_API_BASE_URL }}
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          pip install -e .
+          pip install -e ./clients/spotify
           pip install pytest ruff black
-          python -m pytest
+          python -m pytest clients/spotify/tests
 
   # GDRIVE JOB: Execution conditioned by changes
   gdrive-client:
