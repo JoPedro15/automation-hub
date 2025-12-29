@@ -89,7 +89,17 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           mkdir -p clients/gdrive/data
-          echo "$RAW_CREDENTIALS" > clients/gdrive/data/credentials.json
-          echo "$RAW_TOKEN" > clients/gdrive/data/token.json
-          [ -s clients/gdrive/data/credentials.json ] || { echo "ERROR: Credentials file is empty"; exit 1; }
+          
+          echo "$RAW_CREDENTIALS" > "$GDRIVE_CREDENTIALS_PATH"
+          echo "$RAW_TOKEN" > "$GDRIVE_TOKEN_PATH"
+          
+          echo ">>> 🔍 Running Sanity Check on JSON files..."
+          
+          python3 -c "import json, os; [json.load(open(f)) for f in ['$GDRIVE_CREDENTIALS_PATH', '$GDRIVE_TOKEN_PATH']]; print('✅ JSON structure is valid.')" || {
+            echo "❌ ERROR: One of the JSON files is invalid."
+            echo "Checking file start/end characters (debugging only):"
+            head -c 5 "$GDRIVE_CREDENTIALS_PATH"; echo "..."; tail -c 5 "$GDRIVE_CREDENTIALS_PATH"
+            exit 1
+          }
+          
           make health CI=true
