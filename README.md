@@ -1,6 +1,6 @@
 # 🧩 Automation Hub Monorepo
 
-<div style="text-align: center;">
+<div align="center">
     <img src="https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.12" />
   <img src="https://github.com/JoPedro15/automation-hub/actions/workflows/ci-pipeline.yml/badge.svg?branch=main" alt="CI Quality Pipeline" />
   <img src="https://github.com/JoPedro15/automation-hub/actions/workflows/infrastructure-health.yml/badge.svg" alt="Infrastructure Health" />
