@@ -62,7 +62,7 @@ health:
 
 # Runs all test suites across the entire hub
 test-all:
-	@echo ">>> 🧪 Running all automation tests..."
+	@echo ">>> Running all automation tests..."
 	@$(MAKE) test-gdrive
 	@echo ">>> ✨ All tests completed!"
 
@@ -75,13 +75,11 @@ test-gdrive:
 # Executes static code analysis (linting) for all clients
 lint-all:
 	@echo ">>> 🔍 Linting all clients..."
-	$(MAKE) -C $(SPOTIFY_DIR) lint
 	$(MAKE) -C $(GDRIVE_DIR) lint
 
 # Standardizes code style across all clients
 fmt-all:
 	@echo ">>> 🖋️ Formatting all clients..."
-	$(MAKE) -C $(SPOTIFY_DIR) fmt
 	$(MAKE) -C $(GDRIVE_DIR) fmt
 
 # --- Cleanup ---
