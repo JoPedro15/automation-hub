@@ -89,11 +89,11 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           mkdir -p clients/gdrive/data
-          cat <<EOF > clients/gdrive/data/credentials.json
-          $GDRIVE_CREDENTIALS_DATA
+          cat << 'EOF' > clients/gdrive/data/credentials.json
+          ${{ secrets.GDRIVE_CREDENTIALS_JSON }}
           EOF
           
-          cat <<EOF > clients/gdrive/data/token.json
-          $GDRIVE_TOKEN_DATA
+          cat << 'EOF' > clients/gdrive/data/token.json
+          ${{ secrets.GDRIVE_TOKEN_JSON }}
           EOF
           make health CI=true
