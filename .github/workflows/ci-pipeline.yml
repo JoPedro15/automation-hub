@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 🛡️ SECURITY LAYER: Mandatory gate for all PRs
+  # SECURITY LAYER: Mandatory gate for all PRs
   security-scan:
     name: Security Analysis
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
         run: |
           pip-audit clients/gdrive/
 
-  # 🔍 CHANGES DETECTION: Intelligent path filtering for Monorepo efficiency
+  # CHANGES DETECTION: Intelligent path filtering for Monorepo efficiency
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
