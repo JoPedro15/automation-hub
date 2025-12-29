@@ -63,13 +63,8 @@ health:
 # Runs all test suites across the entire hub
 test-all:
 	@echo ">>> 🧪 Running all automation tests..."
-	@$(MAKE) test-spotify
 	@$(MAKE) test-gdrive
 	@echo ">>> ✨ All tests completed!"
-
-# Triggers Spotify-specific integration tests via its local Makefile
-test-spotify:
-	$(MAKE) -C $(SPOTIFY_DIR) test
 
 # Triggers Google Drive-specific integration tests via its local Makefile
 test-gdrive:
@@ -97,6 +92,5 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	$(MAKE) -C $(SPOTIFY_DIR) clean
 	$(MAKE) -C $(GDRIVE_DIR) clean
 	@echo ">>> Workspace is clean."
