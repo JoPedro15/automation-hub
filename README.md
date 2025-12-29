@@ -1,15 +1,12 @@
 # 🧩 Automation Hub Monorepo
 
-<div align="center">
-    <img src="https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.12" />
-  <img src="https://github.com/JoPedro15/automation-hub/actions/workflows/ci-pipeline.yml/badge.svg?branch=main" alt="CI Quality Pipeline" />
-  <img src="https://github.com/JoPedro15/automation-hub/actions/workflows/infrastructure-health.yml/badge.svg" alt="Infrastructure Health" />
-  <br />
-
-  <img src="https://img.shields.io/badge/linter-Ruff-000000?style=flat-square&logo=python&logoColor=white" alt="Ruff" />
-  <img src="https://img.shields.io/badge/security-Bandit%20%7C%20Audit-44cc11?style=flat-square&logo=shield&logoColor=white" alt="Security" />
-  <img src="https://img.shields.io/badge/stack-Monorepo-orange?style=flat-square&logo=git" alt="Monorepo" />
-</div>
+![Python 3.12](https://img.shields.io/badge/python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)
+![CI Quality Pipeline](https://github.com/JoPedro15/automation-hub/actions/workflows/ci-pipeline.yml/badge.svg?branch=main)
+![Infrastructure Health](https://github.com/JoPedro15/automation-hub/actions/workflows/infrastructure-health.yml/badge.svg)
+<br />
+![Ruff](https://img.shields.io/badge/linter-Ruff-000000?style=flat-square&logo=python&logoColor=white)
+![Security](https://img.shields.io/badge/security-Bandit%20%7C%20Audit-44cc11?style=flat-square&logo=shield&logoColor=white)
+![Stack](https://img.shields.io/badge/stack-Monorepo-orange?style=flat-square&logo=git)
 
 ## 🚀 Overview
 
@@ -106,11 +103,7 @@ This repository serves as the core governance center for all related automation 
 
 ______________________________________________________________________
 
-<div align="center">
-  <p>
-    <strong>João Pedro Silva</strong> | Automation Engineer <br />
-    <a href="https://github.com/JoPedro15">GitHub</a> •
-    <a href="https://github.com/JoPedro15/automation-hub">Automation Hub</a> •
-    <a href="https://github.com/JoPedro15/ai-lab">AI Lab</a>
-  </p>
-</div>
+**João Pedro** | Automation Engineer
+<br />
+[GitHub](https://github.com/JoPedro15) • [Automation Hub](https://github.com/JoPedro15/automation-hub) • [AI Lab](https://github.com/JoPedro15/ai-lab)
+<br />
