@@ -1,5 +1,6 @@
 import io
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from googleapiclient.discovery import Resource, build
@@ -17,25 +18,40 @@ class GDriveClient:
     """
 
     def __init__(
-            self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
+        self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
     ) -> None:
         """
-        Initializes the GDriveClient and authenticates the service.
-
-        Args:
-            credentials_path (str): Path to the credentials.json file.
-            token_path (str): Path to the token.json file.
+        Initializes the GDriveClient with robust path resolution for both
+        credentials and token files.
         """
-        self.credentials_path: str = credentials_path or os.getenv(
-            "GDRIVE_CREDENTIALS_PATH", "credentials.json"
-        )
-        self.token_path: str = token_path or os.getenv(
-            "GDRIVE_TOKEN_PATH", "token.json"
-        )
-        self.scopes: List[str] = ["https://www.googleapis.com/auth/drive"]
+        # 1. Define the base directory of this client
+        # Path of this file: .../automation-hub/clients/gdrive/gdrive_client/client.py
+        base_dir: Path = Path(__file__).parent
 
-        # Default folder ID from environment for fallback
+        # 2. Resolve Credentials Path (Argument > Env Var > Default Hub Path)
+        # Using parent.parent to go from 'gdrive_client' to 'gdrive' folder
+        default_creds: str = str(base_dir.parent / "data" / "credentials.json")
+        self.credentials_path: str = (
+            credentials_path or os.getenv("GDRIVE_CREDENTIALS_PATH") or default_creds
+        )
+
+        # 3. Resolve Token Path (Argument > Env Var > Default Hub Path)
+        default_token: str = str(base_dir.parent / "data" / "token.json")
+        self.token_path: str = (
+            token_path or os.getenv("GDRIVE_TOKEN_PATH") or default_token
+        )
+
+        # 4. Critical Path Validation
+        if not os.path.exists(self.credentials_path):
+            raise FileNotFoundError(
+                f"❌ Credentials file missing! \nChecked: {self.credentials_path}"
+            )
+
+        # 5. Remaining configuration
+        self.scopes: List[str] = ["https://www.googleapis.com/auth/drive"]
         self.output_folder_id: Optional[str] = os.getenv("OUTPUT_FOLDER_ID")
+
+        # Initialize the actual Google service
         self.service: Resource = self._init_service()
 
     def _init_service(self) -> Resource:
@@ -109,7 +125,7 @@ class GDriveClient:
         return len(results.get("files", [])) > 0
 
     def _fetch_files(
-            self, query: str, fields: str = "id, name"
+        self, query: str, fields: str = "id, name"
     ) -> List[Dict[str, str]]:
         """
         Internal helper to fetch all files matching a query, handling pagination.
@@ -174,7 +190,7 @@ class GDriveClient:
         print(f"✅ File successfully saved to: {local_path}")
 
     def list_files(
-            self, folder_id: Optional[str] = None, limit: int = 10
+        self, folder_id: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, str]]:
         """
         Lists files. If folder_id is None, it lists files from the root

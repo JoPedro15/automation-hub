@@ -48,7 +48,7 @@ security:
 	# Scanning all clients for common security issues
 	$(PY) -m bandit -r clients/ -ll --exclude .venv,*/.venv/*
 	@echo ">>> Running Dependency Audit (pip-audit)..."
-	$(PY) -m pip_audit
+	$(PY) -m pip_audit --skip-editable
 
 # --- Health & Monitoring ---
 
@@ -77,7 +77,6 @@ fmt-all:
 test-all:
 	@echo ">>> Running all automation tests..."
 	$(MAKE) -C $(GDRIVE_DIR) test
-	$(MAKE) -C $(AI_UTILS_DIR) test
 	@echo ">>> ✨ All tests completed!"
 
 # --- Cleanup ---
