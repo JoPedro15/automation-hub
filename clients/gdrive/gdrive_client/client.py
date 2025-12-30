@@ -1,8 +1,10 @@
+import io
 import os
 from typing import Any, Dict, List, Optional
 
 from googleapiclient.discovery import Resource, build
 from googleapiclient.http import MediaFileUpload
+from googleapiclient.http import MediaIoBaseDownload
 
 from clients.gdrive.gdrive_client.auth import get_google_service_credentials
 
@@ -16,7 +18,7 @@ class GDriveClient:
     """
 
     def __init__(
-        self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
+            self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
     ) -> None:
         """
         Initializes the GDriveClient and authenticates the service.
@@ -107,7 +109,7 @@ class GDriveClient:
         return len(results.get("files", [])) > 0
 
     def _fetch_files(
-        self, query: str, fields: str = "id, name"
+            self, query: str, fields: str = "id, name"
     ) -> List[Dict[str, str]]:
         """
         Internal helper to fetch all files matching a query, handling pagination.
@@ -142,8 +144,36 @@ class GDriveClient:
 
         return all_files
 
+    def download_file(self, file_id: str, local_path: str) -> None:
+        """
+        Downloads a file from Google Drive to a local destination.
+
+        Args:
+            file_id (str): The unique Google Drive File ID.
+            local_path (str): The local path (including filename) where the file will be saved.
+        """
+        # 1. Create the request to get the file media content
+        request = self.service.files().get_media(fileId=file_id)
+
+        # 2. Setup the local file stream
+        file_stream: io.FileIO = io.FileIO(local_path, "wb")
+
+        # 3. Initialize the downloader
+        downloader: MediaIoBaseDownload = MediaIoBaseDownload(file_stream, request)
+
+        print(f"⏳ Starting download of file ID: {file_id}")
+
+        # 4. Execute the download in chunks
+        done: bool = False
+        while not done:
+            status, done = downloader.next_chunk()
+            if status:
+                print(f"📥 Download progress: {int(status.progress() * 100)}%")
+
+        print(f"✅ File successfully saved to: {local_path}")
+
     def list_files(
-        self, folder_id: Optional[str] = None, limit: int = 10
+            self, folder_id: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, str]]:
         """
         Lists files. If folder_id is None, it lists files from the root or generic drive access (useful for health checks).
