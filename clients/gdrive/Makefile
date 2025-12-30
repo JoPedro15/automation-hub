@@ -3,8 +3,6 @@
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 VENV     := $(ROOT_DIR)/.venv
 PY       := $(VENV)/bin/python
-PYTHON = python3
-SCRIPTS_DIR = scripts
 # Export PYTHONPATH so the interpreter finds the root packages
 export PYTHONPATH := $(ROOT_DIR):$(PYTHONPATH)
 
@@ -13,17 +11,21 @@ export PYTHONPATH := $(ROOT_DIR):$(PYTHONPATH)
 setup:
 	@echo ">>> Installing GDrive Client and its dependencies..."
 	$(PY) -m pip install -U pip
-	# This installs everything listed in [project.dependencies] of pyproject.toml
 	$(PY) -m pip install -e .
-	# Install development tools
-	$(PY) -m pip install pytest ruff black isort
+	$(PY) -m pip install pytest ruff
 
 lint:
-	$(PY) -m ruff check .
+	@echo ">>> 🧪 Linting GDrive client with Ruff..."
+	# We use -m ruff to ensure we use the venv's version.
+	# We select 'I' to force import sorting checks (isort logic).
+	$(PY) -m ruff check . --select E,F,I
+	$(PY) -m ruff format --check .
 
 fmt:
-	$(PY) -m isort .
-	$(PY) -m black .
+	@echo ">>> 🎨 Formatting code and sorting imports..."
+	# Using ruff for both sorting and formatting replaces isort and black
+	$(PY) -m ruff check . --select I --fix
+	$(PY) -m ruff format .
 
 test:
 	@echo ">>> Running GDrive tests..."

@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Tuple
 
 import pytest
-from clients.gdrive import GDriveClient
 from dotenv import load_dotenv
+
+from clients.gdrive import GDriveClient
 
 
 @pytest.fixture(scope="module")

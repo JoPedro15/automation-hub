@@ -2,7 +2,11 @@
 CI ?= false
 
 # Variables
-VENV        := .venv
+VENV           := .venv
+AI_UTILS_DIR   := clients/ai_utils
+GDRIVE_DIR     := clients/gdrive
+SPOTIFY_DIR    := clients/spotify
+
 ifeq ($(CI), true)
     PY      := python3
     PIP     := pip
@@ -11,14 +15,9 @@ else
     PIP     := $(VENV)/bin/pip
 endif
 
-VENV        := .venv
 REQ_DEV     := requirements.txt
 
-# Client directories
-SPOTIFY_DIR := clients/spotify
-GDRIVE_DIR  := clients/gdrive
-
-.PHONY: setup update-deps security health test-all test-spotify test-gdrive clean lint-all fmt-all
+.PHONY: setup update-deps security health test-all clean lint-all fmt-all
 
 # --- Main Orchestration ---
 
@@ -26,69 +25,67 @@ GDRIVE_DIR  := clients/gdrive
 setup:
 	@echo ">>> 🛠️ Starting Full Environment Setup..."
 	@if [ ! -d "$(VENV)" ]; then \
-		echo ">>> Creating Virtual Environment..."; \
-		python3 -m venv $(VENV); \
-	fi
+       echo ">>> Creating Virtual Environment..."; \
+       python3 -m venv $(VENV); \
+    fi
 	@$(PIP) install --upgrade pip
 	@$(MAKE) update-deps
 	@$(MAKE) security
-	@echo ">>> ✅ System ready and secured!"
+	@echo ">>> ✅ System ready, orchestrated and secured!"
 
-# Installs or upgrades all development requirements from the root file
+# Installs root requirements and all clients in editable mode
 update-deps:
 	@echo ">>> 📦 Updating development requirements..."
 	$(PIP) install -U -r $(REQ_DEV)
+	@echo ">>> Installing clients in editable mode..."
+	$(PIP) install -e $(GDRIVE_DIR)
+	$(PIP) install -e $(AI_UTILS_DIR)
 
-# Performs static code analysis and checks for vulnerable dependencies
+# --- Security (The Shield) ---
+
 security:
 	@echo ">>> 🛡️ Running Security Analysis (Bandit)..."
-	# Bandit: scans for common security issues (filtered by Medium/High severity)
+	# Scanning all clients for common security issues
 	$(PY) -m bandit -r clients/ -ll --exclude .venv,*/.venv/*
 	@echo ">>> Running Dependency Audit (pip-audit)..."
-	# pip-audit: scans the entire environment for known vulnerabilities
 	$(PY) -m pip_audit
 
 # --- Health & Monitoring ---
 
-# Run all health checks from root
 health:
 	@echo ">>> Running Global Health Checks..."
 	@export PYTHONPATH=.:$(PYTHONPATH) && \
-	 export GDRIVE_CREDENTIALS_PATH="clients/gdrive/data/credentials.json" && \
-	 export GDRIVE_TOKEN_PATH="clients/gdrive/data/token.json" && \
-	 $(PY) scripts/global_health_check.py
+     export GDRIVE_CREDENTIALS_PATH="clients/gdrive/data/credentials.json" && \
+     export GDRIVE_TOKEN_PATH="clients/gdrive/data/token.json" && \
+     $(PY) scripts/global_health_check.py
+
+# --- Linting & Formatting (Universal & Fast) ---
+
+lint-all:
+	@echo ">>> 🔍 Global Linting with Ruff..."
+	# We run from root to catch cross-package issues and import sorting
+	$(PY) -m ruff check . --select E,F,I
+	$(PY) -m ruff format --check .
+
+fmt-all:
+	@echo ">>> 🖋️ Global Formatting and Import Sorting..."
+	$(PY) -m ruff check . --select I --fix
+	$(PY) -m ruff format .
 
 # --- Testing ---
 
-# Runs all test suites across the entire hub
 test-all:
 	@echo ">>> Running all automation tests..."
-	@$(MAKE) test-gdrive
-	@echo ">>> ✨ All tests completed!"
-
-# Triggers Google Drive-specific integration tests via its local Makefile
-test-gdrive:
 	$(MAKE) -C $(GDRIVE_DIR) test
-
-# --- Linting & Formatting ---
-
-# Executes static code analysis (linting) for all clients
-lint-all:
-	@echo ">>> 🔍 Linting all clients..."
-	$(MAKE) -C $(GDRIVE_DIR) lint
-
-# Standardizes code style across all clients
-fmt-all:
-	@echo ">>> 🖋️ Formatting all clients..."
-	$(MAKE) -C $(GDRIVE_DIR) fmt
+	$(MAKE) -C $(AI_UTILS_DIR) test
+	@echo ">>> ✨ All tests completed!"
 
 # --- Cleanup ---
 
-# Recursively purges Python caches, build artifacts, and test leftovers
 clean:
 	@echo ">>> 🧹 Cleaning up project artifacts..."
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
-	$(MAKE) -C $(GDRIVE_DIR) clean
 	@echo ">>> Workspace is clean."

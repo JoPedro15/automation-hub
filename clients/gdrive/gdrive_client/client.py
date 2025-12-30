@@ -17,7 +17,7 @@ class GDriveClient:
     """
 
     def __init__(
-        self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
+            self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
     ) -> None:
         """
         Initializes the GDriveClient and authenticates the service.
@@ -60,7 +60,8 @@ class GDriveClient:
 
         Args:
             file_path (str): Local path of the file to upload.
-            folder_id (Optional[str]): Target folder ID. Defaults to OUTPUT_FOLDER_ID env var.
+            folder_id (Optional[str]): Target folder ID.
+            Defaults to OUTPUT_FOLDER_ID env var.
 
         Returns:
             str: The unique ID of the uploaded file in Google Drive.
@@ -108,7 +109,7 @@ class GDriveClient:
         return len(results.get("files", [])) > 0
 
     def _fetch_files(
-        self, query: str, fields: str = "id, name"
+            self, query: str, fields: str = "id, name"
     ) -> List[Dict[str, str]]:
         """
         Internal helper to fetch all files matching a query, handling pagination.
@@ -149,7 +150,8 @@ class GDriveClient:
 
         Args:
             file_id (str): The unique Google Drive File ID.
-            local_path (str): The local path (including filename) where the file will be saved.
+            local_path (str): The local path (including filename)
+            where the file will be saved.
         """
         # 1. Create the request to get the file media content
         request = self.service.files().get_media(fileId=file_id)
@@ -172,10 +174,11 @@ class GDriveClient:
         print(f"✅ File successfully saved to: {local_path}")
 
     def list_files(
-        self, folder_id: Optional[str] = None, limit: int = 10
+            self, folder_id: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, str]]:
         """
-        Lists files. If folder_id is None, it lists files from the root or generic drive access (useful for health checks).
+        Lists files. If folder_id is None, it lists files from the root
+        or generic drive access (useful for health checks).
 
         Args:
             folder_id (str): The ID of the folder to inspect.
@@ -264,5 +267,8 @@ class GDriveClient:
             print("⚠️ Skipping deletion: folder_id or prefix missing.")
             return []
 
-        query: str = f"'{folder_id}' in parents and trashed = false and name startswith '{file_prefix}'"
+        query: str = (
+            f"'{folder_id}' in parents and trashed = false "
+            f"and name startswith '{file_prefix}'"
+        )
         return self._list_and_delete(query)

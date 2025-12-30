@@ -2,8 +2,9 @@ import os
 from pathlib import Path
 from typing import List
 
-from clients.gdrive.gdrive_client.client import GDriveClient
 from dotenv import load_dotenv
+
+from clients.gdrive.gdrive_client.client import GDriveClient
 
 
 def main() -> None:

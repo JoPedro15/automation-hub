@@ -1,5 +1,5 @@
 import sys
-from typing import List, Callable, Tuple
+from typing import Callable, List, Tuple
 
 from clients.gdrive.scripts.gdrive_health_check import run_gdrive_check
 
@@ -33,9 +33,11 @@ def run_all_health_checks() -> None:
             failed = True
 
     if failed:
-        print(
-            f"\n{RED}{BOLD}>>> ❌ Health Check Failed: One or more integrations are unreachable.{RESET}"
+        error_msg: str = (
+            f"\n{RED}{BOLD}>>> ❌ Health Check Failed: "
+            f"One or more integrations are unreachable.{RESET}"
         )
+        print(error_msg)
         sys.exit(1)
     else:
         print(f"\n{GREEN}{BOLD}>>> ✅ All systems functional.{RESET}")
