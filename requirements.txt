@@ -21,8 +21,11 @@ matplotlib
 seaborn               # Advanced statistical plotting
 
 # --- Excel & Format Support ---
-xlrd                  # Support for old .xls files (like cars.xls)
-openpyxl              # Support for modern .xlsx files
+xlrd >= 2.0.1         # Support for old .xls files
+openpyxl >= 3.1.0     # MANDATORY for our DataIngestor and GDrive Exports
+
+# --- Machine Learning Persistence ---
+joblib                # Essential for export_model_artifacts
 
 # --- Testing & Notebook Automation ---
 pytest                # Framework for all automation tests

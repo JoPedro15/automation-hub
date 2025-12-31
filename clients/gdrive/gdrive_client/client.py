@@ -18,7 +18,7 @@ class GDriveClient:
     """
 
     def __init__(
-            self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
+        self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
     ) -> None:
         """
         Initializes the GDriveClient with robust path resolution for both
@@ -32,13 +32,13 @@ class GDriveClient:
         # Using parent.parent to go from 'gdrive_client' to 'gdrive' folder
         default_creds: str = str(base_dir.parent / "data" / "credentials.json")
         self.credentials_path: str = (
-                credentials_path or os.getenv("GDRIVE_CREDENTIALS_PATH") or default_creds
+            credentials_path or os.getenv("GDRIVE_CREDENTIALS_PATH") or default_creds
         )
 
         # 3. Resolve Token Path (Argument > Env Var > Default Hub Path)
         default_token: str = str(base_dir.parent / "data" / "token.json")
         self.token_path: str = (
-                token_path or os.getenv("GDRIVE_TOKEN_PATH") or default_token
+            token_path or os.getenv("GDRIVE_TOKEN_PATH") or default_token
         )
 
         # 4. Critical Path Validation
@@ -125,7 +125,7 @@ class GDriveClient:
         return len(results.get("files", [])) > 0
 
     def _fetch_files(
-            self, query: str, fields: str = "id, name"
+        self, query: str, fields: str = "id, name"
     ) -> List[Dict[str, str]]:
         """
         Internal helper to fetch all files matching a query, handling pagination.
@@ -187,7 +187,7 @@ class GDriveClient:
             )
         else:
             # It's a binary file - Standard download
-            print(f">>> 📥 Downloading binary file...")
+            print(">>> Downloading binary file...")
             request = self.service.files().get_media(fileId=file_id)
 
         # 3. Perform the actual data transfer
@@ -202,7 +202,7 @@ class GDriveClient:
         print(f"✅ File successfully saved to: {local_path}")
 
     def list_files(
-            self, folder_id: Optional[str] = None, limit: int = 10
+        self, folder_id: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, str]]:
         """
         Lists files. If folder_id is None, it lists files from the root

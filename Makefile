@@ -30,16 +30,23 @@ setup:
     fi
 	@$(PIP) install --upgrade pip
 	@$(MAKE) update-deps
+	@$(MAKE) verify-env
 	@$(MAKE) security
 	@echo ">>> ✅ System ready, orchestrated and secured!"
 
 # Installs root requirements and all clients in editable mode
 update-deps:
-	@echo ">>> 📦 Updating development requirements..."
+	@echo ">>> 📦 Updating development requirements from $(REQ_DEV)..."
 	$(PIP) install -U -r $(REQ_DEV)
 	@echo ">>> Installing clients in editable mode..."
 	$(PIP) install -e $(GDRIVE_DIR)
 	$(PIP) install -e $(AI_UTILS_DIR)
+
+# Sanity check to ensure TOML dependencies (like openpyxl) were actually installed
+verify-env:
+	@echo ">>> 🔍 Verifying environment integrity..."
+	@$(PY) -c "import openpyxl; import pandas; import ai_utils_client; print('>>> ✨ Integrity Check Passed: All packages found.')" || \
+	(echo ">>> ❌ Integrity Check Failed: Missing dependencies. Check your pyproject.toml files." && exit 1)
 
 # --- Security (The Shield) ---
 
