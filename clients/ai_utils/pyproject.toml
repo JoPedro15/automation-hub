@@ -9,6 +9,8 @@ description = "AI Utilities client for data processing and feature engineering"
 requires-python = ">=3.12"
 dependencies = [
     "pandas>=2.2.0",
+    "openpyxl>=3.1.0",
+    "gdrive-client",
 ]
 
 [tool.setuptools.packages.find]

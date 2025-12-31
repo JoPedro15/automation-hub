@@ -1,1 +1,2 @@
+from .data_ingestor_client import DataIngestorClient as DataIngestorClient
 from .data_processor_client import DataProcessorClient as DataProcessorClient
