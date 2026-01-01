@@ -6,6 +6,8 @@ VENV           := .venv
 CORE_LIB_DIR   := clients/core_lib
 AI_UTILS_DIR   := clients/ai_utils
 GDRIVE_DIR     := clients/gdrive
+GDRIVE_SCRIPTS_DIR := $(GDRIVE_DIR)/scripts
+SCRIPTS_DIR    := scripts
 
 ifeq ($(CI), true)
     PY      := python3
@@ -16,6 +18,9 @@ else
 endif
 
 REQ_DEV     := requirements.txt
+
+# Export PYTHONPATH to ensure all clients are discoverable by ruff/pytest
+export PYTHONPATH := .:$(GDRIVE_DIR):$(CORE_LIB_DIR):$(AI_UTILS_DIR)
 
 .PHONY: setup update-deps security health test-all clean lint-all fmt-all
 
@@ -63,8 +68,7 @@ security:
 
 health:
 	@echo ">>> Running Global Health Checks..."
-    	@export PYTHONPATH=.:$(PYTHONPATH) && \
-    	 $(PY) scripts/global_health_check.py
+	$(PY) $(SCRIPTS_DIR)/global_health_check.py
 
 # --- Linting & Formatting (Universal & Fast) ---
 
@@ -83,7 +87,7 @@ fmt-all:
 
 test-all:
 	@echo ">>> Running all automation tests..."
-	$(MAKE) -C $(GDRIVE_DIR) test
+	$(PY) -m pytest $(GDRIVE_DIR)/tests/gdrive_test.py -vv
 	@echo ">>> ✨ All tests completed!"
 
 # --- Cleanup ---
@@ -95,3 +99,8 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 	find . -type d -name "*.egg-info" -exec rm -rf {} +
 	@echo ">>> Workspace is clean."
+
+clean-gdrive-output:
+	@echo ">>> 🧹 Cleaning Google Drive output folder..."
+	@$(PY) $(GDRIVE_SCRIPTS_DIR)/clean_gdrive_output.py
+	@echo ">>> GDrive cleanup task finished."

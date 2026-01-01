@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Optional
 from googleapiclient.discovery import Resource, build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
+from clients.core_lib.core_lib_client.logger_client import logger
 from clients.gdrive.gdrive_client.auth import get_google_service_credentials
 
 
@@ -25,17 +26,15 @@ class GDriveClient:
         credentials and token files.
         """
         # 1. Define the base directory of this client
-        # Path of this file: .../automation-hub/clients/gdrive/gdrive_client/client.py
         base_dir: Path = Path(__file__).parent
 
-        # 2. Resolve Credentials Path (Argument > Env Var > Default Hub Path)
-        # Using parent.parent to go from 'gdrive_client' to 'gdrive' folder
+        # 2. Resolve Credentials Path
         default_creds: str = str(base_dir.parent / "data" / "credentials.json")
         self.credentials_path: str = (
             credentials_path or os.getenv("GDRIVE_CREDENTIALS_PATH") or default_creds
         )
 
-        # 3. Resolve Token Path (Argument > Env Var > Default Hub Path)
+        # 3. Resolve Token Path
         default_token: str = str(base_dir.parent / "data" / "token.json")
         self.token_path: str = (
             token_path or os.getenv("GDRIVE_TOKEN_PATH") or default_token
@@ -47,12 +46,14 @@ class GDriveClient:
                 f"❌ Credentials file missing! \nChecked: {self.credentials_path}"
             )
 
-        # 5. Remaining configuration
+        # 5. Configuration
         self.scopes: List[str] = ["https://www.googleapis.com/auth/drive"]
         self.output_folder_id: Optional[str] = os.getenv("OUTPUT_FOLDER_ID")
 
-        # Initialize the actual Google service
-        self.service: Resource = self._init_service()
+        # 6. Initialize the service
+        # Casting to Any here stops the "Unresolved attribute reference" in the IDE
+        # while allowing you to use .files(), .list(), etc.
+        self.service: Any = self._init_service()
 
     def _init_service(self) -> Resource:
         """
@@ -70,37 +71,70 @@ class GDriveClient:
         )
         return build("drive", "v3", credentials=creds)
 
-    def upload_file(self, file_path: str, folder_id: Optional[str] = None) -> str:
+    def upload_file(
+        self, file_path: str, folder_id: str, overwrite: bool = True
+    ) -> str:
         """
-        Uploads a local file to a specific Google Drive folder.
+        Uploads a file to Google Drive.
+        If overwrite is True, it updates the existing file
+        with the same name in the target folder.
 
         Args:
-            file_path (str): Local path of the file to upload.
-            folder_id (Optional[str]): Target folder ID.
-            Defaults to OUTPUT_FOLDER_ID env var.
+            file_path (str): Local path to the file.
+            folder_id (str): GDrive ID of the destination folder.
+            overwrite (bool): Default is True.
+            If True, replaces existing file; else, creates a duplicate.
 
         Returns:
-            str: The unique ID of the uploaded file in Google Drive.
+            str: The GDrive ID of the uploaded or updated file.
         """
+        # Extract file name from the local path
         file_name: str = os.path.basename(file_path)
-        target_folder: str = folder_id or self.output_folder_id or ""
 
-        file_metadata: Dict[str, Any] = {
-            "name": file_name,
-            "parents": [target_folder] if target_folder else [],
-        }
-
-        # Resumable=True is critical for reliability in large file uploads
+        # Initialize the media upload object for GDrive API
         media: MediaFileUpload = MediaFileUpload(file_path, resumable=True)
 
-        file: Dict[str, Any] = (
+        # 1. Check for existing file if overwrite is enabled
+        if overwrite:
+            # Query to find files with the same name in the specific parent folder
+            query: str = (
+                f"name = '{file_name}' and '{folder_id}' in parents and trashed = false"
+            )
+
+            # Execute the search request
+            response: Dict[str, Any] = (
+                self.service.files().list(q=query, fields="files(id)").execute()
+            )
+
+            existing_files: List[Dict[str, str]] = response.get("files", [])
+
+            if existing_files:
+                # File exists: Perform an UPDATE operation instead of CREATE
+                file_id: str = existing_files[0]["id"]
+                logger.info(f"Overwriting existing file: {file_name} (ID: {file_id})")
+
+                # Using service.files().update to replace the content of the existing ID
+                updated_file = (
+                    self.service.files()
+                    .update(fileId=file_id, media_body=media)
+                    .execute()
+                )
+
+                return updated_file.get("id")
+
+        # 2. File does not exist or overwrite is False: Perform a CREATE operation
+        file_metadata: Dict[str, Any] = {"name": file_name, "parents": [folder_id]}
+
+        logger.info(f"Uploading as a new file: {file_name}")
+
+        # Using service.files().create to generate a new entry in GDrive
+        new_file = (
             self.service.files()
             .create(body=file_metadata, media_body=media, fields="id")
             .execute()
         )
 
-        print(f"✅ File '{file_name}' uploaded. ID: {file.get('id')}")
-        return str(file.get("id"))
+        return new_file.get("id")
 
     def file_exists(self, file_name: str, folder_id: str) -> bool:
         """
@@ -171,7 +205,7 @@ class GDriveClient:
         )
 
         mime_type: str = file_metadata.get("mimeType", "")
-        print(f">>> 🔎 Detected MIME type: {mime_type}")
+        logger.info(f">>> Detected MIME type: {mime_type}")
 
         request = None
         # 2. Decide between Download or Export
@@ -181,13 +215,13 @@ class GDriveClient:
             export_mime: str = (
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
-            print(f">>> 🔄 Exporting Google Editor file to {export_mime}...")
+            logger.info(f">>> Exporting Google Editor file to {export_mime}...")
             request = self.service.files().export_media(
                 fileId=file_id, mimeType=export_mime
             )
         else:
             # It's a binary file - Standard download
-            print(">>> Downloading binary file...")
+            logger.info(">>> Downloading binary file...")
             request = self.service.files().get_media(fileId=file_id)
 
         # 3. Perform the actual data transfer
@@ -197,19 +231,20 @@ class GDriveClient:
         while not done:
             status, done = downloader.next_chunk()
             if status:
-                print(f">>> ⏳ Progress: {int(status.progress() * 100)}%")
+                logger.info(f">>> Progress: {int(status.progress() * 100)}%")
 
-        print(f"✅ File successfully saved to: {local_path}")
+        logger.success(f"File successfully saved to: {local_path}")
 
     def list_files(
         self, folder_id: Optional[str] = None, limit: int = 10
     ) -> List[Dict[str, str]]:
         """
-        Lists files. If folder_id is None, it lists files from the root
-        or generic drive access (useful for health checks).
+        Lists files in a specific folder or across the drive.
 
         Args:
-            folder_id (str): The ID of the folder to inspect.
+            folder_id (Optional[str]): The ID of the folder to inspect.
+                If None, uses root or generic access.
+            limit (int): Maximum number of files to return. Defaults to 10.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries containing 'id' and 'name'.
@@ -219,6 +254,7 @@ class GDriveClient:
             target: str = folder_id or self.output_folder_id or ""
             query += f" and '{target}' in parents"
 
+        # Break the chain into multiple lines to avoid E501 and improve readability
         results = (
             self.service.files()
             .list(q=query, spaces="drive", fields="files(id, name)", pageSize=limit)
@@ -243,7 +279,7 @@ class GDriveClient:
         for f in files_to_delete:
             self.service.files().delete(fileId=f["id"]).execute()
             deleted_ids.append(f["id"])
-            print(f"✅ Deleted: {f['name']} ({f['id']})")
+            logger.success(f"Deleted: {f['name']} ({f['id']})")
 
         return deleted_ids
 
@@ -282,21 +318,64 @@ class GDriveClient:
 
     def delete_files_by_prefix(self, folder_id: str, file_prefix: str) -> List[str]:
         """
-        Deletes files that start with a specific string.
+        Deletes files in a specific folder that start with a given prefix.
+        Uses 'contains' for GDrive API search and refines with Python's startswith.
 
         Args:
-            folder_id (str): The ID of the folder.
-            file_prefix (str): Prefix to match (e.g., 'temp_').
+            folder_id (str): The ID of the GDrive folder.
+            file_prefix (str): The prefix to match (e.g., 'test_').
 
         Returns:
-            List[str]: IDs of deleted files.
+            List[str]: A list of IDs of the deleted files.
         """
         if not folder_id or not file_prefix:
-            print("⚠️ Skipping deletion: folder_id or prefix missing.")
+            logger.warning("Skipping deletion: folder_id or prefix missing.")
             return []
 
+        # 1. Search for files containing the prefix
+        # (startswith is not supported by GDrive API)
+        # This query is valid for GDrive API v3
         query: str = (
-            f"'{folder_id}' in parents and trashed = false "
-            f"and name startswith '{file_prefix}'"
+            f"'{folder_id}' in parents and "
+            f"name contains '{file_prefix}' and "
+            f"trashed = false"
         )
-        return self._list_and_delete(query)
+
+        # 2. Fetch files from GDrive
+        # We fetch name and id to perform client-side filtering
+        files_found: List[Dict[str, str]] = self._fetch_files(query)
+
+        if not files_found:
+            logger.info(f"No files found containing prefix: '{file_prefix}'")
+            return []
+
+        # 3. Refine the list using Python's startswith (Precise Filtering)
+        # This prevents deleting files like 'backup_test_file.csv'
+        # when prefix is 'test_'
+        file_ids_to_delete: List[str] = [
+            f["id"] for f in files_found if f["name"].startswith(file_prefix)
+        ]
+
+        if not file_ids_to_delete:
+            logger.info(f"No files strictly starting with: '{file_prefix}'")
+            return []
+
+        # 4. Perform the deletion using your existing internal method
+        logger.info(
+            f"Deleting {len(file_ids_to_delete)} files with prefix '{file_prefix}'..."
+        )
+
+        # Assuming _list_and_delete accepts a list of IDs or we call a delete method
+        # Since your original code passed a query to _list_and_delete,
+        # you might need to adjust that method to accept IDs directly or
+        # iterate through them:
+
+        deleted_ids: List[str] = []
+        for fid in file_ids_to_delete:
+            try:
+                self.service.files().delete(fileId=fid).execute()
+                deleted_ids.append(fid)
+            except Exception as e:
+                logger.error(f"Failed to delete file {fid}: {str(e)}")
+
+        return deleted_ids
