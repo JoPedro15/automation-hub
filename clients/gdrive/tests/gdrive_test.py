@@ -1,7 +1,6 @@
 import os
 import time
 from pathlib import Path
-from typing import Tuple
 
 import pytest
 from dotenv import load_dotenv
@@ -10,7 +9,7 @@ from clients.gdrive import GDriveClient
 
 
 @pytest.fixture(scope="module")
-def gdrive_setup() -> Tuple[GDriveClient, str]:
+def gdrive_setup() -> tuple[GDriveClient, str]:
     """
     Setup client and target folder for integration tests.
     Ensures environment variables are present before starting.
@@ -28,7 +27,7 @@ def gdrive_setup() -> Tuple[GDriveClient, str]:
     return client, folder_id
 
 
-def test_gdrive_full_lifecycle(gdrive_setup: Tuple[GDriveClient, str]) -> None:
+def test_gdrive_full_lifecycle(gdrive_setup: tuple[GDriveClient, str]) -> None:
     """
     Tests the full CRUD lifecycle of files in Google Drive.
 

@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-from typing import Dict, List
 
 from dotenv import load_dotenv
 
@@ -32,7 +31,7 @@ def main() -> None:
     logger.info(f"Starting SAFE cleanup (Trash) in output folder (ID: {output_id})")
 
     # 1. Get all files in the folder
-    files_to_trash: List[Dict[str, str]] = client.list_files(
+    files_to_trash: list[dict[str, str]] = client.list_files(
         folder_id=output_id,
         limit=1000,
     )
@@ -44,7 +43,7 @@ def main() -> None:
     logger.warning(f"Found {len(files_to_trash)} items. Moving to Trash...")
 
     # 2. Update files to set 'trashed' to True
-    trashed_ids: List[str] = []
+    trashed_ids: list[str] = []
     for f in files_to_trash:
         file_name: str = f.get("name", "Unknown Name")
         file_id: str = f.get("id", "Unknown ID")

@@ -1,9 +1,7 @@
-from typing import Tuple
-
 from clients.gdrive import GDriveClient
 
 
-def run_gdrive_check() -> Tuple[bool, str]:
+def run_gdrive_check() -> tuple[bool, str]:
     """
     Performs local validation for Google Drive.
     This module knows where its credentials are.

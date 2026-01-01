@@ -1,6 +1,6 @@
 import sys
 from datetime import datetime
-from typing import Final, Optional
+from typing import Final
 
 
 class Logger:
@@ -22,33 +22,41 @@ class Logger:
         return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     def info(self, message: str) -> None:
-        print(f"[{self._get_timestamp()}] INFO: {message}")
+        print(  # noqa: T201
+            f"[{self._get_timestamp()}] INFO: {message}"
+        )
 
     def success(self, message: str) -> None:
-        print(f"[{self._get_timestamp()}] {self._GREEN}SUCCESS:{self._ENDC} {message}")
+        print(  # noqa: T201
+            f"[{self._get_timestamp()}] {self._GREEN}SUCCESS:{self._ENDC} {message}"
+        )
 
     def warning(self, message: str) -> None:
-        print(
+        print(  # noqa: T201
             f"[{self._get_timestamp()}] {self._WARNING}WARNING:{self._ENDC} {message}"
         )
 
     def error(self, message: str) -> None:
-        print(
+        print(  # noqa: T201
             f"[{self._get_timestamp()}] {self._FAIL}ERROR:{self._ENDC} {message}",
             file=sys.stderr,
         )
 
     def section(self, title: str) -> None:
-        print(
+        print(  # noqa: T201
             f"\n[{self._get_timestamp()}]"
             f"{self._BOLD}{self._HEADER} {title.upper()}{self._ENDC}"
         )
 
-    def print(self, message: str, color: Optional[str] = None) -> None:
+    def print(  # noqa: T201
+        self, message: str, color: str | None = None
+    ) -> None:
         """Raw print replacement. No timestamp, no prefix. Optional color."""
         c = color if color else ""
         end = self._ENDC if color else ""
-        print(f"{c}{message}{end}")
+        print(  # noqa: T201
+            f"{c}{message}{end}"
+        )
 
 
 logger: Logger = Logger()

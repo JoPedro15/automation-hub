@@ -72,16 +72,14 @@ health:
 
 # --- Linting & Formatting (Universal & Fast) ---
 
-lint-all:
-	@echo ">>> 🔍 Global Linting with Ruff..."
-	# We run from root to catch cross-package issues and import sorting
-	$(PY) -m ruff check . --select E,F,I
-	$(PY) -m ruff format --check .
-
-fmt-all:
-	@echo ">>> 🖋️ Global Formatting and Import Sorting..."
-	$(PY) -m ruff check . --select I --fix
+lint-and-format:
+	@echo ">>> 🔧 Fixing and Linting with Ruff..."
+	$(PY) -m ruff check . --fix
+	@echo ">>> 🖋️ Global Formatting..."
 	$(PY) -m ruff format .
+	@echo ">>> 🔍 Final Integrity Check..."
+	$(PY) -m ruff check .
+	@echo ">>> ✅ [SUCCESS] Code is clean, formatted, and production-ready!"
 
 # --- Testing ---
 

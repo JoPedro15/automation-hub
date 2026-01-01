@@ -1,5 +1,5 @@
 import sys
-from typing import Callable, List, Tuple
+from collections.abc import Callable
 
 from clients.core_lib.core_lib_client.logger_client import logger
 from clients.gdrive.scripts.gdrive_health_check import run_gdrive_check
@@ -17,7 +17,7 @@ def run_all_health_checks() -> None:
     """
     logger.section(">>> Orchestrating Global Health Checks...")
 
-    checks: List[Tuple[str, Callable[[], Tuple[bool, str]]]] = [
+    checks: list[tuple[str, Callable[[], tuple[bool, str]]]] = [
         ("Google Drive Unit", run_gdrive_check),
     ]
 
@@ -38,7 +38,7 @@ def run_all_health_checks() -> None:
             f"\n{RED}{BOLD}>>> ❌ Health Check Failed: "
             f"One or more integrations are unreachable.{RESET}"
         )
-        print(error_msg)
+        logger.error(error_msg)
         sys.exit(1)
     else:
         logger.success(f">>> ✅ All systems functional.{RESET}")

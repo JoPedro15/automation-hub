@@ -45,7 +45,7 @@ target-version = "py312"
 [tool.ruff.lint]
 # E501 is part of 'E'. We add 'I' for isort (imports) and 'F' for Pyflakes.
 # 'UP' helps keeping code modern.
-select = ["E", "F", "I", "UP", "B"]
+select = ["E", "F", "I", "UP", "B", "T20"]
 ignore = []
 
 # Configure how to handle long lines in docstrings/comments specifically

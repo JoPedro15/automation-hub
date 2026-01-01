@@ -1,7 +1,7 @@
 import io
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from googleapiclient.discovery import Resource, build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
@@ -19,7 +19,7 @@ class GDriveClient:
     """
 
     def __init__(
-        self, credentials_path: Optional[str] = None, token_path: Optional[str] = None
+        self, credentials_path: str | None = None, token_path: str | None = None
     ) -> None:
         """
         Initializes the GDriveClient with robust path resolution for both
@@ -47,8 +47,8 @@ class GDriveClient:
             )
 
         # 5. Configuration
-        self.scopes: List[str] = ["https://www.googleapis.com/auth/drive"]
-        self.output_folder_id: Optional[str] = os.getenv("OUTPUT_FOLDER_ID")
+        self.scopes: list[str] = ["https://www.googleapis.com/auth/drive"]
+        self.output_folder_id: str | None = os.getenv("OUTPUT_FOLDER_ID")
 
         # 6. Initialize the service
         # Casting to Any here stops the "Unresolved attribute reference" in the IDE
@@ -102,11 +102,11 @@ class GDriveClient:
             )
 
             # Execute the search request
-            response: Dict[str, Any] = (
+            response: dict[str, Any] = (
                 self.service.files().list(q=query, fields="files(id)").execute()
             )
 
-            existing_files: List[Dict[str, str]] = response.get("files", [])
+            existing_files: list[dict[str, str]] = response.get("files", [])
 
             if existing_files:
                 # File exists: Perform an UPDATE operation instead of CREATE
@@ -123,7 +123,7 @@ class GDriveClient:
                 return updated_file.get("id")
 
         # 2. File does not exist or overwrite is False: Perform a CREATE operation
-        file_metadata: Dict[str, Any] = {"name": file_name, "parents": [folder_id]}
+        file_metadata: dict[str, Any] = {"name": file_name, "parents": [folder_id]}
 
         logger.info(f"Uploading as a new file: {file_name}")
 
@@ -160,7 +160,7 @@ class GDriveClient:
 
     def _fetch_files(
         self, query: str, fields: str = "id, name"
-    ) -> List[Dict[str, str]]:
+    ) -> list[dict[str, str]]:
         """
         Internal helper to fetch all files matching a query, handling pagination.
 
@@ -171,8 +171,8 @@ class GDriveClient:
         Returns:
             List[Dict[str, str]]: Full list of all matching files across all pages.
         """
-        all_files: List[Dict[str, str]] = []
-        page_token: Optional[str] = None
+        all_files: list[dict[str, str]] = []
+        page_token: str | None = None
 
         while True:
             results = (
@@ -236,8 +236,8 @@ class GDriveClient:
         logger.success(f"File successfully saved to: {local_path}")
 
     def list_files(
-        self, folder_id: Optional[str] = None, limit: int = 10
-    ) -> List[Dict[str, str]]:
+        self, folder_id: str | None = None, limit: int = 10
+    ) -> list[dict[str, str]]:
         """
         Lists files in a specific folder or across the drive.
 
@@ -262,7 +262,7 @@ class GDriveClient:
         )
         return results.get("files", [])
 
-    def _list_and_delete(self, query: str) -> List[str]:
+    def _list_and_delete(self, query: str) -> list[str]:
         """
         Internal helper to fetch files based on a query and delete them.
 
@@ -273,8 +273,8 @@ class GDriveClient:
             List[str]: List of deleted file IDs.
         """
         # We use our new helper to get ALL files first
-        files_to_delete: List[Dict[str, str]] = self._fetch_files(query)
-        deleted_ids: List[str] = []
+        files_to_delete: list[dict[str, str]] = self._fetch_files(query)
+        deleted_ids: list[str] = []
 
         for f in files_to_delete:
             self.service.files().delete(fileId=f["id"]).execute()
@@ -300,7 +300,7 @@ class GDriveClient:
         deleted = self._list_and_delete(query)
         return len(deleted) > 0
 
-    def clear_folder_content(self, folder_id: str) -> List[str]:
+    def clear_folder_content(self, folder_id: str) -> list[str]:
         """
         Permanently removes all files and subfolders from a folder.
 
@@ -316,7 +316,7 @@ class GDriveClient:
         query: str = f"'{folder_id}' in parents and trashed = false"
         return self._list_and_delete(query)
 
-    def delete_files_by_prefix(self, folder_id: str, file_prefix: str) -> List[str]:
+    def delete_files_by_prefix(self, folder_id: str, file_prefix: str) -> list[str]:
         """
         Deletes files in a specific folder that start with a given prefix.
         Uses 'contains' for GDrive API search and refines with Python's startswith.
@@ -343,7 +343,7 @@ class GDriveClient:
 
         # 2. Fetch files from GDrive
         # We fetch name and id to perform client-side filtering
-        files_found: List[Dict[str, str]] = self._fetch_files(query)
+        files_found: list[dict[str, str]] = self._fetch_files(query)
 
         if not files_found:
             logger.info(f"No files found containing prefix: '{file_prefix}'")
@@ -352,7 +352,7 @@ class GDriveClient:
         # 3. Refine the list using Python's startswith (Precise Filtering)
         # This prevents deleting files like 'backup_test_file.csv'
         # when prefix is 'test_'
-        file_ids_to_delete: List[str] = [
+        file_ids_to_delete: list[str] = [
             f["id"] for f in files_found if f["name"].startswith(file_prefix)
         ]
 
@@ -370,7 +370,7 @@ class GDriveClient:
         # you might need to adjust that method to accept IDs directly or
         # iterate through them:
 
-        deleted_ids: List[str] = []
+        deleted_ids: list[str] = []
         for fid in file_ids_to_delete:
             try:
                 self.service.files().delete(fileId=fid).execute()

@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import pandas as pd
 
@@ -20,7 +19,7 @@ class DataProcessorClient:
         pass
 
     def encode_categorical_features(
-        self, df: pd.DataFrame, columns: List[str], drop_first: bool = True
+        self, df: pd.DataFrame, columns: list[str], drop_first: bool = True
     ) -> pd.DataFrame:
         """
         Encodes categorical features using One-Hot Encoding (Dummy Encoding).
@@ -35,7 +34,7 @@ class DataProcessorClient:
             pd.DataFrame: A new DataFrame with transformed categorical features.
         """
         # Filter columns that actually exist in the DataFrame to prevent errors
-        existing_cols: List[str] = [col for col in columns if col in df.columns]
+        existing_cols: list[str] = [col for col in columns if col in df.columns]
 
         if not existing_cols:
             logging.warning("No matching columns found for encoding.")

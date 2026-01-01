@@ -1,5 +1,4 @@
 import os
-from typing import Optional
 
 import pandas as pd
 
@@ -13,7 +12,7 @@ class DataIngestorClient:
     Ensures data integrity before loading into the pipeline.
     """
 
-    def __init__(self, gdrive_client: Optional[GDriveClient] = None) -> None:
+    def __init__(self, gdrive_client: GDriveClient | None = None) -> None:
         """
         Initializes the ingestor.
         Injects a GDriveClient to reuse authentication sessions.
