@@ -1,0 +1,49 @@
+# Automation Hub Pre-commit Configuration
+# Orchestrating quality for Core, GDrive, and AI-Utils clients
+
+repos:
+  # --- Core Hygiene ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer           # Ensures files end with a newline
+      - id: trailing-whitespace          # Trims unnecessary whitespace
+      - id: mixed-line-ending           # Normalizes LF/CRLF
+      - id: check-yaml                  # Validates YAML syntax
+      - id: check-merge-conflict        # Blocks unresolved merge conflicts
+      - id: check-added-large-files     # Prevents large binary commits
+        args: [ '--maxkb=3000' ]
+      - id: check-ast                   # Ensures Python files are syntactically valid
+
+  # --- Ruff: Linter & Formatter ---
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.0
+    hooks:
+      - id: ruff                        # Linter (Logic, Imports, Modernization)
+        args: [ --fix, --exit-non-zero-on-fix ]
+      - id: ruff-format                  # Formatter (Style)
+
+  # --- Spelling Check ---
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.4.1
+    hooks:
+      - id: codespell
+        args: [ --ignore-words-list=nd,ue,ody ]
+        exclude: ^clients/.*\.egg-info/ # Exclude build metadata
+
+  # --- Documentation Formatting ---
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 1.0.0
+    hooks:
+      - id: mdformat
+        additional_dependencies: [ mdformat-gfm ]
+        files: ^README\.md$|docs/.*\.md$
+
+  # --- Notebook Quality (Optional but Recommended) ---
+  # Included for consistency with ai-lab if you add notebooks later
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.9.1
+    hooks:
+      - id: nbqa-ruff
+        args: [ --line-length=88 ]
+        # Only runs if .ipynb files are found

@@ -7,7 +7,7 @@ To ensure traceability across the Automation Ecosystem, we follow these standard
 Format: `<type>/<short-description>`
 
 | Type        | Use Case                                  |
-|:------------|:------------------------------------------|
+| :---------- | :---------------------------------------- |
 | `feat/`     | New tools, clients or features.           |
 | `bug/`      | Fixes and patches.                        |
 | `maint/`    | Documentation and repository maintenance. |
@@ -34,5 +34,5 @@ Before pushing any branch, you must ensure the code passes the local quality sui
 This command (defined in the root Makefile) executes:
 
 1. **Linting**: Ruff (Formatting & Logic).
-2. **Security**: Bandit (SAST) & Pip-audit (Vulnerabilities).
-3. **Tests**: Pytest suite.
+1. **Security**: Bandit (SAST) & Pip-audit (Vulnerabilities).
+1. **Tests**: Pytest suite.

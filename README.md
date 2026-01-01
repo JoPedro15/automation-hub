@@ -20,7 +20,7 @@ infrastructure (clients) from business logic (projects).
 The repository is organized into distinct layers to ensure scalability and code reusability:
 
 | Layer        | Path        | Description                                                                 |
-|:-------------|:------------|:----------------------------------------------------------------------------|
+| :----------- | :---------- | :-------------------------------------------------------------------------- |
 | **Clients**  | `clients/`  | Standalone infrastructure connectors (Spotify, GDrive).                     |
 | **Projects** | `projects/` | Application-level logic, AI experiments, and specific automation use cases. |
 | **Common**   | `common/`   | Shared utilities (Auth helpers, Logging) reused across the repo.            |
@@ -31,8 +31,8 @@ The repository is organized into distinct layers to ensure scalability and code 
 Every client in `clients/` in this ecosystem is treated as an independent module:
 
 1. Internal logic is hidden in submodules.
-2. Main interface is exposed via `__init__.py`.
-3. Independent testing suite and `pyproject.toml`.
+1. Main interface is exposed via `__init__.py`.
+1. Independent testing suite and `pyproject.toml`.
 
 Every client under the clients/ directory follows a predictable, industrial-grade pattern to ensure maintainability:
 
@@ -69,16 +69,16 @@ The `make setup` command is our "Single Source of Truth" for environment health:
 
 We integrate professional-grade tools to secure our research and code:
 
-* **Static Analysis (SAST)**: `Bandit` scans for insecure patterns.
-* **Vulnerability Audit**: `pip-audit` checks the dependency tree for known CVEs.
-* **Unified Linting**: `Ruff` handles formatting, imports sorting, and logic linting in a single pass.
+- **Static Analysis (SAST)**: `Bandit` scans for insecure patterns.
+- **Vulnerability Audit**: `pip-audit` checks the dependency tree for known CVEs.
+- **Unified Linting**: `Ruff` handles formatting, imports sorting, and logic linting in a single pass.
 
 ### 🛠️ Automation Commands
 
 We use **GNU Make** to orchestrate quality gates across the monorepo:
 
 | Command         | Description                                                           |
-|:----------------|:----------------------------------------------------------------------|
+| :-------------- | :-------------------------------------------------------------------- |
 | `make setup`    | Initializes environment, installs deps, and sets up pre-commit hooks. |
 | `make quality`  | The full gate: Runs Ruff (Lint/Fmt), Security scans, and Tests.       |
 | `make security` | Specifically triggers Bandit and pip-audit scans.                     |
@@ -94,12 +94,12 @@ This repository serves as the core governance center for all related automation 
 
 ### Google Drive Client
 
-* **Purpose**: Automated cloud storage management for AI datasets and outputs.
-* **Technical Highlights**:
-    * **Automated Pagination**: Seamlessly handles folders with thousands of items using internal _fetch_files.
-    * **Security-First Deletion**: Supports strict prefix-based cleanup (test_*) and full folder purging.
-    * **Resilient IO**: Implements Google's resumable media upload protocol for large file stability.
-    * **Full Lifecycle Testing**: Integrated suite covering the entire CRUD flow.
+- **Purpose**: Automated cloud storage management for AI datasets and outputs.
+- **Technical Highlights**:
+  - **Automated Pagination**: Seamlessly handles folders with thousands of items using internal \_fetch_files.
+  - **Security-First Deletion**: Supports strict prefix-based cleanup (test\_\*) and full folder purging.
+  - **Resilient IO**: Implements Google's resumable media upload protocol for large file stability.
+  - **Full Lifecycle Testing**: Integrated suite covering the entire CRUD flow.
 
 ______________________________________________________________________
 

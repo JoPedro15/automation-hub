@@ -38,7 +38,7 @@ The system is divided into four main layers:
 - **Goal**: Host centralized scripts and GitHub Actions.
 - **Standard**: The SSoT (Single Source of Truth) for linters and environment rules.
 
----
+______________________________________________________________________
 
 ## 🛠️ Code Standards & Implementation
 
