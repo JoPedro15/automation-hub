@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import pandas as pd
@@ -37,7 +38,7 @@ class DataProcessorClient:
         existing_cols: List[str] = [col for col in columns if col in df.columns]
 
         if not existing_cols:
-            print("⚠️ No matching columns found for encoding.")
+            logging.warning("No matching columns found for encoding.")
             return df
 
         return pd.get_dummies(df, columns=existing_cols, drop_first=drop_first)

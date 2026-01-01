@@ -1,53 +1,72 @@
 import os
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
 from dotenv import load_dotenv
 
+from clients.core_lib.core_lib_client.logger_client import logger
 from clients.gdrive.gdrive_client.client import GDriveClient
 
 
 def main() -> None:
     """
-    Orchestrates the cleanup process of the Google Drive output folder.
-
-    This script initializes the GDrive environment and performs a targeted
-    deletion of temporary files using a specific naming convention.
+    Performs a safe cleanup of the Google Drive output folder.
+    Moves ALL files inside the target folder to the Trash.
     """
-    # Load environment variables (API Keys, Folder IDs, etc.)
     load_dotenv()
 
-    # Define paths using pathlib for robust cross-platform execution (Mac/Linux)
     root: Path = Path(__file__).parent.parent
     creds_path: str = str(root / "data" / "credentials.json")
     token_path: str = str(root / "data" / "token.json")
 
-    # Safety Check: Ensure the target folder ID is present
     output_id: str = os.getenv("OUTPUT_FOLDER_ID", "")
 
     if not output_id:
-        print("❌ Error: OUTPUT_FOLDER_ID not found in environment variables.")
+        logger.error("OUTPUT_FOLDER_ID not found in environment variables.")
         return
 
-    # Initialize the GDriveClient with the refactored architecture
     client: GDriveClient = GDriveClient(
         credentials_path=creds_path, token_path=token_path
     )
 
-    print(f"🧹 Starting cleanup in folder: {output_id}")
-    print("🔍 Filtering files with prefix: 'test_'")
+    logger.info(f"Starting SAFE cleanup (Trash) in output folder (ID: {output_id})")
 
-    # The client now handles pagination internally via _fetch_files
-    # This call is significantly more performant and reliable
-    deleted_ids: List[str] = client.delete_files_by_prefix(
-        folder_id=output_id, file_prefix="test_"
+    # 1. Get all files in the folder
+    files_to_trash: List[Dict[str, str]] = client.list_files(
+        folder_id=output_id,
+        limit=1000,
     )
 
+    if not files_to_trash:
+        logger.info("Folder is already empty. No action needed.")
+        return
+
+    logger.warning(f"Found {len(files_to_trash)} items. Moving to Trash...")
+
+    # 2. Update files to set 'trashed' to True
+    trashed_ids: List[str] = []
+    for f in files_to_trash:
+        file_name: str = f.get("name", "Unknown Name")
+        file_id: str = f.get("id", "Unknown ID")
+
+        try:
+            logger.warning(f"Trashing: {file_name} (ID: {file_id})")
+
+            # Using update instead of delete for safety
+            client.service.files().update(
+                fileId=file_id, body={"trashed": True}
+            ).execute()
+
+            trashed_ids.append(file_id)
+
+        except Exception as e:
+            logger.error(f"Failed to trash {file_name}: {e}")
+
     # Final Execution Report
-    if deleted_ids:
-        print(f"✨ Success! Permanently removed {len(deleted_ids)} items.")
-    else:
-        print("ℹ️ No files matching the prefix 'test_' were found. Folder is clean.")
+    if trashed_ids:
+        logger.success(
+            f"Cleanup complete! Moved {len(trashed_ids)} items to the Trash."
+        )
 
 
 if __name__ == "__main__":

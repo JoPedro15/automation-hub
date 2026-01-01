@@ -3,6 +3,7 @@ from typing import Optional
 
 import pandas as pd
 
+from clients.core_lib.core_lib_client.logger_client import logger
 from clients.gdrive import GDriveClient
 
 
@@ -56,7 +57,9 @@ class DataIngestorClient:
         # Deletes the file if it fails integrity check or if a fresh sync is requested
         if is_corrupted or force_download:
             reason: str = "File corrupted" if is_corrupted else "Force download"
-            print(f">>> 🗑️ Cache Invalidation ({reason}): removing {local_file_path}")
+            logger.info(
+                f">>> Cache Invalidation ({reason}): removing {local_file_path}"
+            )
 
             # Use safe removal to avoid race conditions
             if os.path.exists(local_file_path):
@@ -66,13 +69,13 @@ class DataIngestorClient:
         # 3. Data Acquisition Phase
         # Downloads from GDrive only if the local cache is empty or invalidated
         if not file_exists:
-            print(
-                f">>> 📥 Resource missing or invalidated. Ingesting (ID: {file_id})..."
+            logger.info(
+                f">>> Resource missing or invalidated. Ingesting (ID: {file_id})..."
             )
             os.makedirs(os.path.dirname(local_file_path), exist_ok=True)
             self.gdrive.download_file(file_id=file_id, local_path=local_file_path)
         else:
-            print(f">>> ⚡ File found: using existing file at {local_file_path}")
+            logger.info(f">>> File found: using existing file at {local_file_path}")
 
         # 4. Data Loading
         # We use 'openpyxl' as it is the standard for modern .xlsx files

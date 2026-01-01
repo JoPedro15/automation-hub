@@ -1,6 +1,7 @@
 import sys
 from typing import Callable, List, Tuple
 
+from clients.core_lib.core_lib_client.logger_client import logger
 from clients.gdrive.scripts.gdrive_health_check import run_gdrive_check
 
 # ANSI Color codes for terminal feedback
@@ -14,7 +15,7 @@ def run_all_health_checks() -> None:
     """
     Orchestrates all health checks and enforces exit codes based on results.
     """
-    print(f"{BOLD}>>> Orchestrating Global Health Checks...{RESET}\n")
+    logger.section(">>> Orchestrating Global Health Checks...")
 
     checks: List[Tuple[str, Callable[[], Tuple[bool, str]]]] = [
         ("Google Drive Unit", run_gdrive_check),
@@ -27,7 +28,7 @@ def run_all_health_checks() -> None:
         status_color: str = GREEN if success else RED
         status_text: str = "OK" if success else "FAIL"
 
-        print(f"[{status_color}{status_text}{RESET}] {name}: {message}")
+        logger.info(f"[{status_color}{status_text}{RESET}] {name}: {message}")
 
         if not success:
             failed = True
@@ -40,7 +41,7 @@ def run_all_health_checks() -> None:
         print(error_msg)
         sys.exit(1)
     else:
-        print(f"\n{GREEN}{BOLD}>>> ✅ All systems functional.{RESET}")
+        logger.success(f">>> ✅ All systems functional.{RESET}")
         sys.exit(0)
 
 
