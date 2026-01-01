@@ -26,8 +26,6 @@ dependencies = [
     "bandit",
     "pip-audit",
     "ruff",
-    "black",
-    "isort",
     # --- Testing & Notebook Automation ---
     "pytest",
     "nbclient",
@@ -36,5 +34,33 @@ dependencies = [
 
 [tool.setuptools.packages.find]
 where = ["."]
-# Isto garante que o pip encontra as pastas clients e common na raiz
 include = ["clients"]
+
+[tool.ruff]
+# Define the strict limit (Black style)
+line-length = 88
+# Target Python version
+target-version = "py312"
+
+[tool.ruff.lint]
+# E501 is part of 'E'. We add 'I' for isort (imports) and 'F' for Pyflakes.
+# 'UP' helps keeping code modern.
+select = ["E", "F", "I", "UP", "B"]
+ignore = []
+
+# Configure how to handle long lines in docstrings/comments specifically
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 100
+
+[tool.ruff.format]
+# Standardizing the formatter to resolve line length issues automatically
+quote-style = "double"
+indent-style = "space"
+# This is key: it forces wraps when a trailing comma is present
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+# Ensures imports are organized and grouped logically
+combine-as-imports = true
+force-single-line = false
