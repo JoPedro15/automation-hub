@@ -6,35 +6,30 @@
 <br />
 ![Ruff](https://img.shields.io/badge/linter-Ruff-000000?style=flat-square&logo=python&logoColor=white)
 ![Security](https://img.shields.io/badge/security-Bandit%20%7C%20Audit-44cc11?style=flat-square&logo=shield&logoColor=white)
-![Stack](https://img.shields.io/badge/stack-Monorepo-orange?style=flat-square&logo=git)
 
 ## 🚀 Overview
 
-A professional monorepo for modular Python services and automated workflows.
+A professional Infrastructure Monorepo designed for modular Python services and automated foundation layers.
 
-This repository acts as the **Single Source of Truth (SSoT)** for our automation ecosystem, strictly separating
-infrastructure (clients) from business logic (projects).
+This repository acts as the Single Source of Truth (SSoT) for our automation ecosystem, providing production-ready
+connectors and utilities to be consumed by external research and application projects.
 
 ## 🏗️ Architecture & Structure
 
-The repository is organized into distinct layers to ensure scalability and code reusability:
+The repository is organized into distinct functional layers to ensure absolute separation of concerns and
+infrastructure stability:
 
-| Layer        | Path        | Description                                                                 |
-| :----------- | :---------- | :-------------------------------------------------------------------------- |
-| **Clients**  | `clients/`  | Standalone infrastructure connectors (Spotify, GDrive).                     |
-| **Projects** | `projects/` | Application-level logic, AI experiments, and specific automation use cases. |
-| **Common**   | `common/`   | Shared utilities (Auth helpers, Logging) reused across the repo.            |
-| **Tooling**  | `tooling/`  | Centralized automation rules and CI/CD configurations.                      |
+| Layer                        | Path         | Description                                                        |
+| :--------------------------- | :----------- | :----------------------------------------------------------------- |
+| **Infrastructure (Clients)** | `clients/`   | Standalone, independent connectors (Core, GDrive, AI Utils).       |
+| **Governance (Docs)**        | `docs/`      | Engineering standards, architecture diagrams, and Git conventions. |
+| **Orchestration (Scripts)**  | `scripts/`   | Global maintenance tools and environment health checks.            |
+| **Tooling**                  | `Root Files` | Centralized quality gates (`Makefile`, `.pre-commit-config.yaml`). |
 
 ## 🔌 Standardized Client Architecture
 
-Every client in `clients/` in this ecosystem is treated as an independent module:
-
-1. Internal logic is hidden in submodules.
-1. Main interface is exposed via `__init__.py`.
-1. Independent testing suite and `pyproject.toml`.
-
-Every client under the clients/ directory follows a predictable, industrial-grade pattern to ensure maintainability:
+Every client in `clients/` is treated as an independent, industrial-grade module to ensure maintainability and
+scalability.
 
 ```text
 clients/
@@ -49,57 +44,69 @@ clients/
     └── pyproject.toml      # Build system and tool configuration
 ```
 
-For detailed implementation, usage examples, and API methods, refer to the specific documentation:
+### Key Principles:
 
-- **[Google Drive Client Documentation](./clients/gdrive/README.md)**
+- **Promotion Pattern**: The main interface is always exposed at the package root level (`__init__.py`), allowing clean
+  imports like `from clients.gdrive import GDriveClient`.
+- **Independent Lifecycles**: Each client has its own `Makefile` and `tests/`, allowing them to be validated in
+  isolation or as part of the global pipeline.
+- **Security Isolation**: Credentials and local caches are stored in an isolated `data/` folder within each client,
+  ensuring secrets never leave their specific context.
 
-## 🛠️ Tooling & Quality Gates
+## 🔌 Core Infrastructure Modules
 
-We enforce high-quality standards through a centralized **GNU Make** automation system, ensuring parity between local
-development and CI/CD pipelines.
+Each module in the clients/ directory is an independent, installable Python package leveraging the Promotion Pattern
+for clean API exposure.
 
-### 1️⃣ Environment & Security Orchestration
+### 🛠️ [Core Library](./clients/core_lib/README.md)
 
-The `make setup` command is our "Single Source of Truth" for environment health:
+The foundation of the ecosystem. It provides the standardized ANSI-colored Logger used across all modules to enforce our
+**Zero-Print Policy**.
 
-- **Automation**: Creates a Python 3.12 virtual environment and installs dependencies.
-- **Safety**: Automatically triggers a security audit and configures **pre-commit hooks** to enforce standards locally.
+- **Feature**: Thread-safe logging with precise timestamps and status-coded colors.
 
-### 2️⃣ Integrated Security & Quality Scanning
+### 📂 [Google Drive Client](./clients/gdrive/README.md)
 
-We integrate professional-grade tools to secure our research and code:
+A high-level orchestration layer for the Google Drive API.
 
-- **Static Analysis (SAST)**: `Bandit` scans for insecure patterns.
-- **Vulnerability Audit**: `pip-audit` checks the dependency tree for known CVEs.
-- **Unified Linting**: `Ruff` handles formatting, imports sorting, and logic linting in a single pass.
+- **Feature**: Resilient IO, automated pagination, and secure file lifecycle management.
 
-### 🛠️ Automation Commands
+### 🧠 [AI Utilities](./clients/ai_utils/README.md)
 
-We use **GNU Make** to orchestrate quality gates across the monorepo:
+Specialized tools for data acquisition and feature engineering.
 
-| Command         | Description                                                           |
-| :-------------- | :-------------------------------------------------------------------- |
-| `make setup`    | Initializes environment, installs deps, and sets up pre-commit hooks. |
-| `make quality`  | The full gate: Runs Ruff (Lint/Fmt), Security scans, and Tests.       |
-| `make security` | Specifically triggers Bandit and pip-audit scans.                     |
-| `make test`     | Executes pytest across all active clients and projects.               |
-| `make clean`    | Purges all caches (`__pycache__`, `.pytest_cache`) and artifacts.     |
+- **Data Ingestor**: Managed acquisition with local cache validation and integrity checks.
+- **Data Processor**: Type-safe feature engineering and categorical encoding.
+
+## 🛠️ Global Quality Gate (GNU Make)
+
+We use a unified orchestration system to ensure parity between local development and CI/CD pipelines.
+
+### Environment Setup (`make setup`)
+
+Our **5-Step Orchestrator** ensures a healthy environment:
+
+- **VENV**: Creates a Python 3.12 virtual environment.
+- **Dependencies**: Installs global requirements.
+- **Client Linking**: Installs all clients in editable mode for cross-module development.
+- **Integrity**: Runs a verification script to ensure all modules are correctly mapped.
+- **Security**: Initializes pre-commit hooks and triggers a Bandit SAST scan.
+
+### Quality Assurance (`make quality`)
+
+The mandatory gate before any push. It executes:
+
+- **Ruff**: Atomic linting and formatting (Scripts & Notebooks).
+- **Pre-commit**: Validates AST, YAML syntax, and large file blocks.
+- **Security**: Runs `Bandit` and `pip-audit` for vulnerability detection.
+- **Tests**: Executes the full `pytest` suite across all clients.
 
 ## 📖 Governance & Standards
 
-This repository serves as the core governance center for all related automation projects.
-
-- 🏛️ [Layered System](./docs/architecture/layered-system.md): Deep dive into our modular architecture.
-- 🌿 [Git Conventions](./docs/standards/git-conventions.md): Branch naming and commit standards.
-
-### Google Drive Client
-
-- **Purpose**: Automated cloud storage management for AI datasets and outputs.
-- **Technical Highlights**:
-  - **Automated Pagination**: Seamlessly handles folders with thousands of items using internal \_fetch_files.
-  - **Security-First Deletion**: Supports strict prefix-based cleanup (test\_\*) and full folder purging.
-  - **Resilient IO**: Implements Google's resumable media upload protocol for large file stability.
-  - **Full Lifecycle Testing**: Integrated suite covering the entire CRUD flow.
+- **Type Safety**: Mandatory type annotations for all infrastructure methods.
+- **No-Print Policy**: Raw `print` statements are strictly forbidden; use the `core-lib` Logger.
+- **Clean Workspace**: Use `make clean` to purge caches and build artifacts.
+-
 
 ______________________________________________________________________
 
