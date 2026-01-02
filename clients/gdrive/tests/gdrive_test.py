@@ -18,28 +18,24 @@ def gdrive_setup() -> tuple[GDriveClient, str]:
     Ensures environment variables are present before starting.
     """
     load_dotenv()
-
-    # Ensure the output directory exists locally
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     root: Path = Path(__file__).parent.parent
     creds_path: Path = root / "data" / "credentials.json"
     token_path: Path = root / "data" / "token.json"
 
-    # Check if files actually exist before passing them
     creds: str = str(creds_path) if creds_path.exists() else ""
-    # In CI, token.json will likely not exist
-    token: str = str(token_path) if token_path.exists() else ""
+    token: str | None = str(token_path) if token_path.exists() else None
 
     folder_id: str = os.getenv("OUTPUT_FOLDER_ID", "")
 
     if not folder_id:
         pytest.skip("OUTPUT_FOLDER_ID not set, skipping integration tests.")
 
-    # Ensure at least credentials exist
     if not creds:
-        pytest.fail(f"Credentials not found at {creds_path}. Check CI setup.")
+        pytest.fail(f"Required credentials.json missing at {creds_path}")
 
+    # O teu GDriveClient deve lidar com token=None (Service Account flow)
     client: GDriveClient = GDriveClient(creds, token)
     return client, folder_id
 
