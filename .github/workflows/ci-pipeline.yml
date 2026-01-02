@@ -90,40 +90,34 @@ jobs:
     if: ${{ needs.changes.outputs.gdrive == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Install Environment
-        # Uses the SSoT (Makefile) to build the venv and link internal clients
         run: |
           python -m venv .venv
           source .venv/bin/activate
           make setup CI=true
 
-      - name: Initialize Google Credentials
-        # Reconstructs the security environment for API communication
+      - name: Initialize Credentials
         run: |
           mkdir -p clients/gdrive/data
           echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > clients/gdrive/data/credentials.json
 
       - name: Run GDrive Unit Tests
-        # Logic validation: Runs fast tests that don't call the external API
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           source .venv/bin/activate
-          # Skips tests marked as integration to provide immediate feedback on logic
-          pytest clients/gdrive/tests -m "not integration"
+          # Use 'python -m pytest' to ensure root modules are discoverable
+          python -m pytest clients/gdrive/tests -m "not integration"
 
       - name: Run GDrive Integration Tests
-        # Infrastructure validation: Real communication with Google API
         env:
           GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
           PYTHONPATH: ${{ github.workspace }}
         run: |
           source .venv/bin/activate
-          # Run from root but target the specific client tests
           python -m pytest clients/gdrive/tests -m "integration"
