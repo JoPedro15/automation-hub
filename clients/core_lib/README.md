@@ -36,7 +36,7 @@ logger.error("Authentication failed: invalid token.")  #
 ## 📋 API ReferenceMethodDescriptionOutput
 
 | Method           | Description                         | Output Format                                 |
-|:-----------------|:------------------------------------|:----------------------------------------------|
+| :--------------- | :---------------------------------- | :-------------------------------------------- |
 | `info(msg)`      | Standard information log.           | `[YYYY-MM-DD HH:MM:SS] INFO: msg`             |
 | `success(msg)`   | Positive outcome notification.      | `[YYYY-MM-DD HH:MM:SS] SUCCESS: msg (Green)`  |
 | `warning(msg)`   | Alerts for potential issues.        | `[YYYY-MM-DD HH:MM:SS] WARNING: msg (Yellow)` |

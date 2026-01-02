@@ -63,7 +63,7 @@ clean_df: pd.DataFrame = processor.encode_categorical_features(
 ## 📋 API Reference
 
 | Class                 | Method                        | Description                                                     |
-|:----------------------|:------------------------------|:----------------------------------------------------------------|
+| :-------------------- | :---------------------------- | :-------------------------------------------------------------- |
 | `DataIngestorClient`  | `get_spreadsheet_data`        | Manages local cache and GDrive downloads with integrity checks. |
 | `DataProcessorClient` | `encode_categorical_features` | Performs One-Hot Encoding on specified columns.                 |
 | `DataProcessorClient` | `handle_missing_values`       | Provides strategies (drop/fill) for handling NaNs.              |

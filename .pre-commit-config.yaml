@@ -2,7 +2,7 @@
 # Orchestrating quality for Core, GDrive, and AI-Utils clients
 
 repos:
-  # --- Core Hygiene ---
+  # --- Core Hygiene: Basic file integrity ---
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -10,40 +10,32 @@ repos:
       - id: trailing-whitespace          # Trims unnecessary whitespace
       - id: mixed-line-ending           # Normalizes LF/CRLF
       - id: check-yaml                  # Validates YAML syntax
-      - id: check-merge-conflict        # Blocks unresolved merge conflicts
-      - id: check-added-large-files     # Prevents large binary commits
-        args: [ '--maxkb=3000' ]
       - id: check-ast                   # Ensures Python files are syntactically valid
+      - id: check-merge-conflict        # Blocks unresolved merge conflicts
+      - id: check-added-large-files     # Prevents large binary commits (>3MB)
+        args: [ '--maxkb=3000' ]
 
-  # --- Ruff: Linter & Formatter ---
+  # --- Ruff: Unified Linter, Formatter & Security (Native Notebook Support) ---
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.9.0
     hooks:
-      - id: ruff                        # Linter (Logic, Imports, Modernization)
+      - id: ruff                        # Logic, Imports, Modernization & Security (S)
         args: [ --fix, --exit-non-zero-on-fix ]
-      - id: ruff-format                  # Formatter (Style)
+      - id: ruff-format                  # Style & Formatting
+        # Note: Ruff automatically discovers and formats .ipynb files
 
-  # --- Spelling Check ---
+  # --- Spelling Check: Preventing typos in code and docs ---
   - repo: https://github.com/codespell-project/codespell
     rev: v2.4.1
     hooks:
       - id: codespell
         args: [ --ignore-words-list=nd,ue,ody ]
-        exclude: ^clients/.*\.egg-info/ # Exclude build metadata
+        exclude: ^clients/.*\.egg-info/|^.venv/
 
-  # --- Documentation Formatting ---
+  # --- Documentation: Markdown formatting ---
   - repo: https://github.com/executablebooks/mdformat
     rev: 1.0.0
     hooks:
       - id: mdformat
         additional_dependencies: [ mdformat-gfm ]
-        files: ^README\.md$|docs/.*\.md$
-
-  # --- Notebook Quality (Optional but Recommended) ---
-  # Included for consistency with ai-lab if you add notebooks later
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.9.1
-    hooks:
-      - id: nbqa-ruff
-        args: [ --line-length=88 ]
-        # Only runs if .ipynb files are found
+        types: [ markdown ]

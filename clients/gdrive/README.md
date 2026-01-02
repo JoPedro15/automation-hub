@@ -20,8 +20,8 @@ It provides a standardized interface for file orchestration, abstracting the com
 Before initialization, ensure you have:
 
 1. A **Google Cloud Project** with the Drive API enabled.
-2. A `credentials.json` file placed in the `data/` directory.
-3. Python 3.12+ installed.
+1. A `credentials.json` file placed in the `data/` directory.
+1. Python 3.12+ installed.
 
 ## 🛠 Installation & Development
 
@@ -60,7 +60,7 @@ files: list[dict] = client.list_files(
 ### Core API Reference
 
 | Method          | Signature                           | Description                                        |
-|:----------------|:------------------------------------|:---------------------------------------------------|
+| :-------------- | :---------------------------------- | :------------------------------------------------- |
 | `upload_file`   | `(src: str, folder_id: str) -> str` | Uploads local file and returns the GDrive File ID. |
 | `download_file` | `(file_id: str, dest: str) -> None` | Downloads a remote file to a local destination.    |
 | `list_files`    | `(query: str) -> list[dict]`        | Returns a list of file objects matching the query. |
@@ -81,7 +81,7 @@ Credential Isolation: All JSON secrets are strictly git-ignored.
 
 Scope Management: Minimalist OAuth scopes (typically `drive.file`) are used by default.
 
-Static Analysis: Monitored by `Bandit to prevent common security pitfalls in API handling.
+Static Analysis: Monitored by \`Bandit to prevent common security pitfalls in API handling.
 
 ______________________________________________________________________
 
