@@ -108,8 +108,13 @@ security:
 health:
 	@echo ">>> 🩺 [HEALTH] Running Global Infrastructure Diagnostics..."
 	@export GOOGLE_CREDENTIALS_PATH="clients/gdrive/data/credentials.json"; \
-	PYTHONPATH=$(ROOT) $(PYTHON) scripts/health_check_global.py; \
+	export PYTHONPATH=$(ROOT):$(ROOT)/clients/core_lib:$(ROOT)/clients/gdrive:$(ROOT)/clients/ai_utils; \
+	\
+	$(PYTHON) -c "import openpyxl; print('✅ openpyxl found')" || (echo "❌ Missing openpyxl dependency"; exit 1); \
+	\
+	$(PYTHON) scripts/health_check_global.py; \
 	STATUS=$$?; \
+	\
 	echo ""; \
 	$(MAKE) clean-health-artifacts; \
 	exit $$STATUS
